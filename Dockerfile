@@ -5,6 +5,13 @@
 FROM niche/ruby-base:0.1
 MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 
+# Add env variables
+ENV PORT 4567
+ENV REGISTRY_HOST localhost
+ENV REGISTRY_PORT=5000
+ENV REGISTRY_PROTO=https
+ENV REGISTRY_SSL_VERIFY=true
+
 # switch to tmp for handling the bundle
 WORKDIR /tmp
 
