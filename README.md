@@ -17,3 +17,5 @@ docker run -d \
   parabuzzle/craneoperator:latest
 ```
 
+
+![https://raw.githubusercontent.com/parabuzzle/craneoperator/master/screenshots/Crane_Operator.png](https://raw.githubusercontent.com/parabuzzle/craneoperator/master/screenshots/Crane_Operator.png)
