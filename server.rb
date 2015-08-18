@@ -1,9 +1,17 @@
 require 'oj'
 require 'httparty'
 require 'pry'
+require 'erb'
 require 'sinatra/base'
 
 class CraneOp < Sinatra::Base
+
+  configure do
+    mime_type :javascript, 'application/javascript'
+    mime_type :javascript, 'text/javascript'
+    set :logging, true
+    set :static, true
+  end
 
   def registry_host
     ENV['REGISTRY_HOST'] || 'localhost'
@@ -37,29 +45,43 @@ class CraneOp < Sinatra::Base
     json['tags']
   end
 
-
-  get '/' do
-    body = []
-    body << "<table>"
-    body << "<tr><th>Known Containers</th></tr>"
-    containers.each do |container|
-      body << "<tr><td><a href='/container/#{container}'>#{container}</a></td></tr>"
-    end
-    body << "</table>"
-    body.join("\n")
+  def container_info(repo, manifest)
+    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify) )
+    json = Oj.load response.body
   end
 
+  def container_blob(repo, digest='HEAD')
+    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/blobs/#{digest}", verify: to_bool(registry_ssl_verify) )
+    json = Oj.load response.body
+  end
+
+  get '/test' do
+    erb :index
+  end
+
+  get '/' do
+    @containers = containers
+    erb :index
+  end
+
+
   get '/container/:name' do |name|
-    body = []
-    body << "<a href='/'>Home</a><br/><br/>"
-    body << "<h1>#{name}</h1>"
-    body << "<table>"
-    body << "<tr><th>Tags</th></tr>"
-    container_tags(name).each do |tag|
-      body << "<tr><td>#{tag}</td></tr>"
-    end
-    body << "</table>"
-    body.join("\n")
+    @container_tags = container_tags(name)
+    @name = name
+    halt 404 if @container_tags.nil?
+    erb :container
+  end
+
+  get '/container/:name/:tag' do |name, tag|
+    @tag = tag
+    @name = name
+    @container_info = container_info(name, tag)
+    halt 404 if @container_info['fsLayers'].nil?
+    erb :tag
+  end
+
+  error 404 do
+    erb :'404'
   end
 
 end

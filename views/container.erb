@@ -1,0 +1,8 @@
+<h1><%= @name %></h1>
+<hr>
+<h3>Tags</h3>
+<% for tag in @container_tags do %>
+
+  <a href="/container/<%=@name%>/<%=tag%>"><%=tag%></a> &nbsp; &nbsp;
+
+<%end%>

@@ -1,0 +1,22 @@
+<h1><a href="/container/<%=@name%>"><%=@name%></a>:<%=@tag%></h1>
+<hr>
+
+<div class="row">
+  <div class="col-md-2">
+    <b>Arch</b>
+  </div>
+  <div class="col-md-10">
+    <%= @container_info['architecture'] %>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-md-2">
+    <b>Layers</b>
+  </div>
+  <div class="col-md-10">
+    <% for layer in @container_info['fsLayers'] do %>
+      <%=layer['blobSum'].gsub('sha256:', '')%><br/>
+    <%end%>
+  </div>
+</div>
