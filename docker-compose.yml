@@ -1,0 +1,10 @@
+web:
+  build: .
+  volumes:
+    - .:/webapp
+  ports:
+    - "4567:4567"
+  environment:
+    REGISTRY_PORT: 443
+    REGISTRY_HOST: 192.168.99.100
+    REGISTRY_SSL_VERIFY: false

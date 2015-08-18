@@ -42,7 +42,7 @@ class CraneOp < Sinatra::Base
   def container_tags(repo)
     response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify) )
     json = Oj.load response.body
-    json['tags']
+    json['tags'].reverse
   end
 
   def container_info(repo, manifest)
@@ -64,6 +64,9 @@ class CraneOp < Sinatra::Base
     erb :index
   end
 
+  get '/about' do
+    erb :about
+  end
 
   get '/container/:name' do |name|
     @container_tags = container_tags(name)
@@ -76,6 +79,7 @@ class CraneOp < Sinatra::Base
     @tag = tag
     @name = name
     @container_info = container_info(name, tag)
+    @container_tags = container_tags(name)
     halt 404 if @container_info['fsLayers'].nil?
     erb :tag
   end

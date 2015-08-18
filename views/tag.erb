@@ -3,10 +3,21 @@
 
 <div class="row">
   <div class="col-md-2">
-    <b>Arch</b>
+    <b>Architecture</b>
   </div>
   <div class="col-md-10">
     <%= @container_info['architecture'] %>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-md-2">
+    <b>Tags</b>
+  </div>
+  <div class="col-md-10">
+    <% for tag in @container_tags do %>
+      <a href="/container/<%=@name%>/<%=tag%>"><%=tag%></a><br/>
+    <%end%>
   </div>
 </div>
 <hr>

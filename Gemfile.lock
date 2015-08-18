@@ -57,6 +57,3 @@ DEPENDENCIES
   slim
   thin
   unicorn
-
-BUNDLED WITH
-   1.10.6

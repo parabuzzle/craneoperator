@@ -18,4 +18,4 @@ docker run -d \
 ```
 
 
-![https://raw.githubusercontent.com/parabuzzle/craneoperator/master/screenshots/Crane_Operator.png](https://raw.githubusercontent.com/parabuzzle/craneoperator/master/screenshots/Crane_Operator.png)
+![https://raw.githubusercontent.com/parabuzzle/craneoperator/master/screenshots/image_info.png](https://raw.githubusercontent.com/parabuzzle/craneoperator/master/screenshots/Crane_Operator.png)
