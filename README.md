@@ -1,6 +1,8 @@
 # CraneOperator
 Just as crane operators can see where all the containers are in the shipyard, CraneOp gives you a simple web interface for browsing around a Docker Registry running version 2.0+
 
+[![Circle CI](https://circleci.com/gh/parabuzzle/craneoperator.svg?style=svg)](https://circleci.com/gh/parabuzzle/craneoperator)
+
 ```
 docker run -d -p 4567:4567 parabuzzle/craneoperator:latest
 ```
