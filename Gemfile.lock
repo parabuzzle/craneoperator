@@ -11,6 +11,7 @@ GEM
       multi_xml (>= 0.5.2)
     json (1.8.3)
     kgio (2.9.3)
+    memoist (0.12.0)
     method_source (0.8.2)
     multi_xml (0.5.5)
     oj (2.12.12)
@@ -49,6 +50,7 @@ PLATFORMS
 DEPENDENCIES
   foreman
   httparty
+  memoist
   oj
   pry
   rack (~> 1.6.0)
@@ -57,3 +59,6 @@ DEPENDENCIES
   slim
   thin
   unicorn
+
+BUNDLED WITH
+   1.10.6

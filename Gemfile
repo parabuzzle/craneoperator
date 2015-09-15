@@ -24,3 +24,5 @@ gem 'rack', '~> 1.6.0'
 gem 'httparty'
 
 gem 'pry'
+
+gem 'memoist'

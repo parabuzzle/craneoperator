@@ -1,13 +1,8 @@
 require 'rake'
 require 'httparty'
-require 'memoist'
-
-memoize :version
-memoize :latest_hub_version
-memoize :next_version
 
 def version
-  File.readlines('./VERSION').first
+  File.readlines('./VERSION').first.strip
 end
 
 def latest_hub_version
@@ -26,6 +21,7 @@ def next_version
   taginfo.each do |tag|
     tags << tag['name']
   end
+  current_base   = tags.grep(/#{base}/)
   return "#{base}.0" if current_base.empty?
   build = current_base.sort.last.split('.').last.to_i + 1
   return "#{base}.#{build}"
