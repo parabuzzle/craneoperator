@@ -39,11 +39,8 @@ class CraneOp < Sinatra::Base
     json['repositories']
   end
 
-  def container_tags(repo)
-    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify) )
-    json = Oj.load response.body
-    tags = json['tags'] || []
-    tags.sort { |x,y|
+  def sort_versions(ary)
+    ary.sort { |x,y|
       matcher = /[a-z]/i
 
       if x.match(matcher)
@@ -59,7 +56,15 @@ class CraneOp < Sinatra::Base
       end
 
       a && b ? a <=> b : a ? -1 : 1
-    }.reverse
+    }
+    #ary.sort_by! {|v| v.split('.') }
+  end
+
+  def container_tags(repo)
+    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify) )
+    json = Oj.load response.body
+    tags = json['tags'] || []
+    tags = sort_versions(tags).reverse
   end
 
   def container_info(repo, manifest)
