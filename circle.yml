@@ -7,6 +7,8 @@ dependencies:
     - docker info
     - gem install httparty
     - gem install memoist
+    - npm install
+    - npm install webpack
     - rake build
 
 test:

@@ -2,16 +2,28 @@ require 'oj'
 require 'httparty'
 require 'pry'
 require 'erb'
+require 'time'
 require 'sinatra/base'
+require 'sinatra/cross_origin'
 
 class CraneOp < Sinatra::Base
+  register Sinatra::CrossOrigin
 
   configure do
+    enable :cross_origin
     mime_type :javascript, 'application/javascript'
     mime_type :javascript, 'text/javascript'
     set :logging, true
     set :static, true
+    set :allow_origin, :any
+    set :allow_methods, [:get, :post, :options]
+    set :allow_credentials, true
+    set :max_age, "1728000"
+    set :expose_headers, ['Content-Type']
+    set :json_encoder, :to_json
   end
+
+  ## Setup ##
 
   def registry_host
     ENV['REGISTRY_HOST'] || 'localhost'
@@ -29,35 +41,28 @@ class CraneOp < Sinatra::Base
     ENV['REGISTRY_SSL_VERIFY'] || 'true'
   end
 
+  ## Helpers ##
+
   def to_bool(str)
     str.downcase == 'true'
   end
+
+  def html(view)
+    File.read(File.join('public', "#{view.to_s}.html"))
+  end
+
+  def sort_versions(ary)
+    valid_version_numbers = ary.select { |i| i if i.match(/(0-9|\.|\-)/)}
+    non_valid_version_numbers = ary - valid_version_numbers
+    (valid_version_numbers.sort_by {|v| Gem::Version.new( v ) } + non_valid_version_numbers)
+  end
+
+  ## Registry API Methods ##
 
   def containers
     response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/_catalog", verify: to_bool(registry_ssl_verify) )
     json = Oj.load response.body
     json['repositories']
-  end
-
-  def sort_versions(ary)
-    ary.sort { |x,y|
-      matcher = /[a-z]/i
-
-      if x.match(matcher)
-        a = nil
-      else
-        a = x.split('.').last.to_i
-      end
-
-      if y.match(matcher)
-        b = nil
-      else
-        b = y.split('.').last.to_i
-      end
-
-      a && b ? a <=> b : a ? -1 : 1
-    }
-    #ary.sort_by! {|v| v.split('.') }
   end
 
   def container_tags(repo)
@@ -70,50 +75,65 @@ class CraneOp < Sinatra::Base
   def container_info(repo, manifest)
     response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify) )
     json = Oj.load response.body
+
+    # Add extra fields for easy display
+    json['information'] = Oj.load(json['history'].first['v1Compatibility'])
+
+    created_at = Time.parse(json['information']['created'])
+    json['information']['created_formatted'] = created_at.to_s
+    json['information']['created_millis']    = (created_at.to_f * 1000).to_i
+    return json
   end
 
-  def container_blob(repo, digest='HEAD')
-    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/blobs/#{digest}", verify: to_bool(registry_ssl_verify) )
-    json = Oj.load response.body
-  end
-
-  get '/test' do
-    erb :index
-  end
+  ## Endpoints ##
 
   get '/' do
-    @containers = containers
-    erb :index
+    html :index
   end
 
-  get '/about' do
-    erb :about
+  get '/containers.json' do
+    content_type :json
+
+    containers.to_json
   end
 
-  get '/container/:name' do |name|
-    @container_tags = container_tags(name)
-    @name = name
-    halt 404 if @container_tags.nil?
-    erb :container
+  get '/container/:container/tags.json' do |container|
+    content_type :json
+
+    tags = container_tags(container)
+    halt 404 if tags.nil?
+    tags.to_json
   end
 
-  get '/container/:name/:tag' do |name, tag|
-    @tag = tag
-    @name = name
-    @container_info = container_info(name, tag)
-    @container_tags = container_tags(name)
-    halt 404 if @container_info['errors']
-    halt 404 if @container_info['fsLayers'].nil?
-    erb :tag
+  get '/container/:container/:tag.json' do |container, tag|
+    content_type :json
+
+    info = container_info(container, tag)
+
+    halt 404 if info['errors']
+    halt 404 if info['fsLayers'].nil?
+
+    info.to_json
   end
 
-  error 404 do
-    erb :'404'
+   get '/registryinfo' do
+    content_type :json
+    {
+      host: registry_host,
+      port: registry_port,
+      protocol: registry_proto,
+      ssl_verify: registry_ssl_verify
+    }.to_json
+  end
+
+  # Error Handlers
+  error do
+    File.read(File.join('public', '500.html'))
   end
 
   not_found do
     status 404
-    erb :'404'
+    File.read(File.join('public', '404.html'))
   end
 
 end
