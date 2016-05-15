@@ -6,7 +6,7 @@ FROM niche/ruby-base:0.1
 MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 
 # Add env variables
-ENV PORT 4567
+ENV PORT 80
 ENV REGISTRY_HOST localhost
 ENV REGISTRY_PORT=5000
 ENV REGISTRY_PROTO=https
@@ -24,9 +24,6 @@ WORKDIR $APP_HOME
 
 # Add the app
 ADD . $APP_HOME
-
-# Expose needed ports
-EXPOSE 4567
 
 # Run the app
 CMD bundle exec foreman start

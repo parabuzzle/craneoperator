@@ -1,4 +1,32 @@
-#main {
-  margin-top: 35px;
-  min-height: 500px;
+html, body{
+  height:100%;
+}
+
+.footer-pad {
+  padding-top: 100px;
+}
+
+.loader {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: white;
+  z-index: 9999;
+}
+
+.spinner {
+  position: fixed;
+  top: 500px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: white;
+  z-index: 9999;
+}
+
+.col-left-border {
+  min-height: 400px;
+  height:100%;
+  border-left: 1px solid #aaa;
 }
