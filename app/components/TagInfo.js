@@ -15,3 +15,9 @@ class TagInfo extends React.Component {
 
 
 export default TagInfo;
+
+TagInfo.propTypes = {
+  getinfo: React.PropTypes.bool.isRequired,
+  tag: React.PropTypes.string,
+  repo: React.PropTypes.string
+}

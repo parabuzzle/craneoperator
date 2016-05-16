@@ -9,7 +9,6 @@ require('react-datetime');
 export default class RepoTagInfo extends React.Component {
 
   render(){
-    console.log(this.props.info)
     return(
       <div>
         <div className="row">
@@ -45,4 +44,8 @@ export default class RepoTagInfo extends React.Component {
       </div>
     )
   }
+}
+
+RepoTagInfo.propTypes = {
+  info: React.PropTypes.object.isRequired
 }

@@ -30,3 +30,6 @@ html, body{
   height:100%;
   border-left: 1px solid #aaa;
 }
+
+/* Remove focus outline on buttons */
+.list-group-item:focus {outline:none;}

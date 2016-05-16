@@ -64,3 +64,7 @@ export default class RepoConfig extends React.Component {
     );
   }
 }
+
+RepoConfig.propTypes = {
+  config: React.PropTypes.object.isRequired
+}

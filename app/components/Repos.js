@@ -13,3 +13,7 @@ class Repos extends React.Component {
 }
 
 export default Repos;
+
+Repos.propTypes = {
+  setRepo: React.PropTypes.func.isRequired
+}

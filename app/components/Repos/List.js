@@ -67,3 +67,8 @@ export default class List extends React.Component {
     )
   }
 }
+
+List.propTypes = {
+  setRepo: React.PropTypes.func.isRequired,
+  repo: React.PropTypes.string
+}

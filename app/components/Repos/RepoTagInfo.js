@@ -77,3 +77,9 @@ export default class RepoTagInfo extends React.Component {
     )
   }
 }
+
+RepoTagInfo.propTypes = {
+  getinfo: React.PropTypes.bool.isRequired,
+  repo: React.PropTypes.string,
+  tag: React.PropTypes.string
+}

@@ -75,3 +75,7 @@ export default class RepoTags extends React.Component {
     )
   }
 }
+
+RepoTags.propTypes = {
+  setTag: React.PropTypes.func.isRequired
+}

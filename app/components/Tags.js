@@ -24,5 +24,8 @@ class Tags extends React.Component {
   }
 }
 
-
 export default Tags;
+
+Tags.propTypes = {
+  setTag: React.PropTypes.func.isRequired
+}
