@@ -97,7 +97,7 @@ class CraneOp < Sinatra::Base
     containers.to_json
   end
 
-  get '/container/:container/tags.json' do |container|
+  get '/container/*/tags.json' do |container|
     content_type :json
 
     tags = container_tags(container)
@@ -105,7 +105,12 @@ class CraneOp < Sinatra::Base
     tags.to_json
   end
 
-  get '/container/:container/:tag.json' do |container, tag|
+  get /container\/(.*\/)(.*.json)/ do |container, tag|
+
+    # This is here because we need to handle slashes in container names
+    container.chop!
+    tag.gsub!('.json', '')
+
     content_type :json
 
     info = container_info(container, tag)
