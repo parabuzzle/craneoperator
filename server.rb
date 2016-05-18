@@ -45,6 +45,14 @@ class CraneOp < Sinatra::Base
     ENV['REGISTRY_PUBLIC_URL'] || "#{registry_host}:#{registry_port}"
   end
 
+  def registry_username
+    ENV['REGISTRY_USERNAME']
+  end
+
+  def registry_password
+    ENV['REGISTRY_PASSWORD']
+  end
+
   ## Authentication ##
 
   if ENV['USERNAME']
@@ -69,23 +77,38 @@ class CraneOp < Sinatra::Base
     (valid_version_numbers.sort_by {|v| Gem::Version.new( v ) } + non_valid_version_numbers)
   end
 
+  def registry_url
+    url_parts = []
+
+    url_parts << registry_proto
+    url_parts << "://"
+    if registry_username
+      url_parts << "#{registry_username}:#{registry_password}@"
+    end
+    url_parts << registry_host
+    url_parts << ":"
+    url_parts << registry_port
+
+    url_parts.join
+  end
+
   ## Registry API Methods ##
 
   def containers
-    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/_catalog", verify: to_bool(registry_ssl_verify) )
+    response = HTTParty.get( "#{registry_url}/v2/_catalog", verify: to_bool(registry_ssl_verify) )
     json = Oj.load response.body
     json['repositories']
   end
 
   def container_tags(repo)
-    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify) )
+    response = HTTParty.get( "#{registry_url}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify) )
     json = Oj.load response.body
     tags = json['tags'] || []
     tags = sort_versions(tags).reverse
   end
 
   def container_info(repo, manifest)
-    response = HTTParty.get( "#{registry_proto}://#{registry_host}:#{registry_port}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify) )
+    response = HTTParty.get( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify) )
     json = Oj.load response.body
 
     # Add extra fields for easy display
