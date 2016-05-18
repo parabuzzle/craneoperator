@@ -41,6 +41,14 @@ class CraneOp < Sinatra::Base
     ENV['REGISTRY_SSL_VERIFY'] || 'true'
   end
 
+  ## Authentication ##
+
+  if ENV['USERNAME']
+    use Rack::Auth::Basic, "Please Authenticate to View" do |username, password|
+      username == ENV['USERNAME'] and password == ( ENV['PASSWORD'] || '' )
+    end
+  end
+
   ## Helpers ##
 
   def to_bool(str)

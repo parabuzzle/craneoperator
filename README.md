@@ -17,6 +17,15 @@ docker run -d -p 80:80 parabuzzle/craneoperator:latest
 
 ## How do I configure it?
 
+Available Environment Variables:
+
+  * **REGISTRY_HOST** - the registry host to browse (default: `localhost`)
+  * **REGISTRY_PORT** - the port of the registry host (default: `5000`)
+  * **REGISTRY_PROTO** - the protocol to use (ie: `http` or `https`) (default: `https`)
+  * **REGISTRY_SSL_VERIFY** - should the certificate be verified if using SSL (default: `true`)
+  * **USERNAME** - setting this will activate BASIC AUTH and require this username
+  * **PASSWORD** - optional password for BASIC AUTH (you must set the `USERNAME` for this to work)
+
 ```
 docker run -d \
   -p 80:80 \
@@ -24,6 +33,9 @@ docker run -d \
   -e REGISTRY_PORT=443 \
   -e REGISTRY_PROTO=https \
   -e REGISTRY_SSL_VERIFY=false \
+  -e USERNAME=admin \
+  -e PASSWORD=s3cr3t \
   parabuzzle/craneoperator:latest
 ```
+
 ![screenshots/Crane_Operator.jpg](screenshots/Crane_Operator.jpg)
