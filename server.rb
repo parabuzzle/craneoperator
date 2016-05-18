@@ -41,6 +41,10 @@ class CraneOp < Sinatra::Base
     ENV['REGISTRY_SSL_VERIFY'] || 'true'
   end
 
+  def registry_public_url
+    ENV['REGISTRY_PUBLIC_URL'] || "#{registry_host}:#{registry_port}"
+  end
+
   ## Authentication ##
 
   if ENV['USERNAME']
@@ -133,6 +137,7 @@ class CraneOp < Sinatra::Base
     content_type :json
     {
       host: registry_host,
+      public_url: registry_public_url,
       port: registry_port,
       protocol: registry_proto,
       ssl_verify: registry_ssl_verify
