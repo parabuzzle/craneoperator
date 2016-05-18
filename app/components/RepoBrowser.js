@@ -1,4 +1,5 @@
 import React   from 'react';
+import axios   from 'axios';
 import Footer  from './sections/Footer';
 import Header  from './sections/Header';
 import Repos   from './Repos';
@@ -11,7 +12,8 @@ class RepoBrowser extends React.Component {
     this.state = {
       repo: undefined,
       tag: undefined,
-      getinfo: false
+      getinfo: false,
+      registry: {}
     }
   }
 
@@ -29,6 +31,25 @@ class RepoBrowser extends React.Component {
     })
   }
 
+  componentDidMount(){
+    this.getRegistryInfo()
+      .then(function(data){
+        this.setState({
+          registry: data
+        })
+      }.bind(this));
+  }
+
+  getRegistryInfo(){
+    return axios.get(`/registryinfo`)
+      .then(function (response) {
+        return(response.data);
+      })
+      .catch(function (response) {
+        console.log('ERROR IN AXIOS! ' + response);
+      });
+  };
+
   render(){
   return(
     <div className="main-container">
@@ -41,10 +62,10 @@ class RepoBrowser extends React.Component {
           <Tags repo={this.state.repo} setTag={(name) => this.handleSetTag(name)}/>
         </div>
         <div className="col-sm-6 col-left-border">
-          <TagInfo tag={this.state.tag} repo={this.state.repo} getinfo={this.state.getinfo}/>
+          <TagInfo tag={this.state.tag} repo={this.state.repo} getinfo={this.state.getinfo} registry={this.state.registry}/>
         </div>
       </div>
-      <Footer />
+      <Footer registry={this.state.registry} />
     </div>
   )};
 }

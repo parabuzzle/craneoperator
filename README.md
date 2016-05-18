@@ -23,6 +23,7 @@ Available Environment Variables:
   * **REGISTRY_PORT** - the port of the registry host (default: `5000`)
   * **REGISTRY_PROTO** - the protocol to use (ie: `http` or `https`) (default: `https`)
   * **REGISTRY_SSL_VERIFY** - should the certificate be verified if using SSL (default: `true`)
+  * **REGISTRY_PUBLIC_URL** - optional url to use for displaying in pull command and footer (default: `REGISTRY_HOST`:`REGISTRY_PORT`)
   * **USERNAME** - setting this will activate BASIC AUTH and require this username
   * **PASSWORD** - optional password for BASIC AUTH (you must set the `USERNAME` for this to work)
 
