@@ -29,11 +29,15 @@ end
 
 task :tag do
   sh "docker tag -f parabuzzle/craneoperator:latest parabuzzle/craneoperator:#{next_version}"
+  sh "docker tag -f parabuzzle/craneoperator:latest parabuzzle/docker-registry-ui:latest"
+  sh "docker tag -f parabuzzle/craneoperator:latest parabuzzle/docker-registry-ui:#{next_version}"
 end
 
 task :push => :tag do
   sh "docker push parabuzzle/craneoperator:#{next_version}"
   sh "docker push parabuzzle/craneoperator:latest"
+  sh "docker push parabuzzle/docker-registry-ui:latest"
+  sh "docker push parabuzzle/docker-registry-ui:#{next_version}"
 end
 
 task :build do
