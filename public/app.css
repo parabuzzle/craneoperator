@@ -31,5 +31,24 @@ html, body{
   border-left: 1px solid #aaa;
 }
 
+.trash {
+  padding-bottom: 10px;
+}
+
+.trash a {
+  text-decoration: none;
+  color: red;
+}
+
+.trash a:hover span {
+  color: red;
+}
+
+.trash a span {
+  color: transparent;
+}
+
+
+
 /* Remove focus outline on buttons */
 .list-group-item:focus {outline:none;}

@@ -53,6 +53,10 @@ class CraneOp < Sinatra::Base
     ENV['REGISTRY_PASSWORD']
   end
 
+  def delete_allowed
+    ENV['REGISTRY_ALLOW_DELETE'] || 'false'
+  end
+
   ## Authentication ##
 
   if ENV['USERNAME']
@@ -64,7 +68,7 @@ class CraneOp < Sinatra::Base
   ## Helpers ##
 
   def to_bool(str)
-    str.downcase == 'true'
+    str.to_s.downcase == 'true'
   end
 
   def html(view)
@@ -120,6 +124,23 @@ class CraneOp < Sinatra::Base
     return json
   end
 
+  def fetch_digest(repo, manifest)
+    headers = {
+      'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'
+    }
+    response = HTTParty.head( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", headers: headers, verify: to_bool(registry_ssl_verify) )
+    return response.headers["docker-content-digest"]
+  end
+
+  def image_delete(repo, manifest)
+    headers = {
+      'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'
+    }
+    digest = fetch_digest(repo, manifest)
+    response = HTTParty.delete( "#{registry_url}/v2/#{repo}/manifests/#{digest}", headers: headers, verify: to_bool(registry_ssl_verify) )
+    return response
+  end
+
   ## Endpoints ##
 
   get '/' do
@@ -156,15 +177,26 @@ class CraneOp < Sinatra::Base
     info.to_json
   end
 
-   get '/registryinfo' do
+  get '/registryinfo' do
     content_type :json
     {
       host: registry_host,
       public_url: registry_public_url,
       port: registry_port,
       protocol: registry_proto,
-      ssl_verify: registry_ssl_verify
+      ssl_verify: to_bool(registry_ssl_verify),
+      delete_allowed: to_bool(delete_allowed),
     }.to_json
+  end
+
+  delete /container\/(.*\/)(.*.json)/ do |container, tag|
+    halt 404 unless to_bool(delete_allowed)
+
+    container.chop!
+    tag.gsub!('.json', '')
+    response = image_delete( container, tag )
+    headers = response.headers
+    response.body
   end
 
   # Error Handlers

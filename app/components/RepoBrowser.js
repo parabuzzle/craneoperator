@@ -27,7 +27,8 @@ class RepoBrowser extends React.Component {
   handleSetRepo(name){
     this.setState({
       getinfo: false,
-      repo: name
+      repo: name,
+      tag: undefined
     })
   }
 
@@ -50,6 +51,31 @@ class RepoBrowser extends React.Component {
       });
   };
 
+  handleTagDelete(repo, tag){
+    bootbox.confirm('Are you sure? You cannot undo this action!', (function(confirmed) {
+      if (confirmed) {
+        this.deleteTag(repo, tag)
+      }
+    }).bind(this))
+  }
+
+  deleteTag(repo, tag){
+    this.deleteTagViaApi(repo, tag)
+    this.setState({
+      tag: undefined,
+      getinfo: false
+    })
+  }
+
+  deleteTagViaApi(repo, tag){
+    return axios.delete(`/container/${repo}/${tag}.json`)
+      .then(function (response) {
+        return(response.data);
+      })
+      .catch(function (response){
+      });
+  }
+
   render(){
   return(
     <div className="main-container">
@@ -59,10 +85,10 @@ class RepoBrowser extends React.Component {
           <Repos repo={this.state.repo} setRepo={(name) => this.handleSetRepo(name)}/>
         </div>
         <div className="col-sm-3">
-          <Tags repo={this.state.repo} setTag={(name) => this.handleSetTag(name)}/>
+          <Tags repo={this.state.repo} tag={this.state.tag} setTag={(name) => this.handleSetTag(name)}/>
         </div>
         <div className="col-sm-6 col-left-border">
-          <TagInfo tag={this.state.tag} repo={this.state.repo} getinfo={this.state.getinfo} registry={this.state.registry}/>
+          <TagInfo tag={this.state.tag} repo={this.state.repo} handleTagDelete={(repo, tag) => this.handleTagDelete(repo, tag)} getinfo={this.state.getinfo} registry={this.state.registry}/>
         </div>
       </div>
       <Footer registry={this.state.registry} />

@@ -2,15 +2,35 @@ import React      from 'react';
 import Time       from 'react-time';
 import Loader     from 'react-loader';
 import RepoConfig from './RepoConfig';
+import { Button } from 'react-bootstrap';
 
 
 require('react-datetime');
 
 export default class RepoTagInfo extends React.Component {
+
+  delete_functions() {
+    if ( this.props.registry.delete_allowed === true ) {
+      return(
+          <div className="trash">
+            <a href="#" onClick={() => this.props.handleTagDelete(this.props.repo, this.props.tag)}><i className="fa fa-trash" aria-hidden="true"></i> <span className="trashText">Delete Image</span></a>
+          </div>
+        )
+    } else {
+      return(
+          <div></div>
+        )
+    }
+  }
+
   render(){
-    console.log(this.props.registry)
     return(
       <div>
+        <div className="row">
+          <div className="col-md-12">
+            {this.delete_functions()}
+          </div>
+        </div>
         <div className="row">
           <div className="col-md-3"><b>Architecture:</b></div>
           <div className="col-md-9">{this.props.info.architecture}</div>
@@ -53,6 +73,7 @@ export default class RepoTagInfo extends React.Component {
 RepoTagInfo.propTypes = {
   info: React.PropTypes.object.isRequired,
   registry: React.PropTypes.object.isRequired,
+  handleTagDelete: React.PropTypes.func.isRequired,
   repo: React.PropTypes.string,
   tag: React.PropTypes.string
 }
