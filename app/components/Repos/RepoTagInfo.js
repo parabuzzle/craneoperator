@@ -66,7 +66,7 @@ export default class RepoTagInfo extends React.Component {
       <div>
         <Loader loaded={this.state.loaded} color="red" scale={0.75} >
           {this.state.error && "Error Fetching Repos"}
-          { this.state.info && <RepoInfo info={this.state.info} repo={this.state.repo} tag={this.state.tag} registry={this.props.registry}/>}
+          { this.state.info && <RepoInfo info={this.state.info} repo={this.state.repo} handleTagDelete={this.props.handleTagDelete} tag={this.state.tag} registry={this.props.registry}/>}
           <div className="row">
             <div className="col-md-12">
               {this.state.info && <RepoConfig config={this.state.info.information.config} />}
@@ -81,6 +81,7 @@ export default class RepoTagInfo extends React.Component {
 RepoTagInfo.propTypes = {
   getinfo: React.PropTypes.bool.isRequired,
   registry: React.PropTypes.object.isRequired,
+  handleTagDelete: React.PropTypes.func.isRequired,
   repo: React.PropTypes.string,
   tag: React.PropTypes.string
 }

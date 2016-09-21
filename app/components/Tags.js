@@ -18,7 +18,7 @@ class Tags extends React.Component {
   render() {
     return (
       <div>
-        <RepoTags repo={this.state.repo} setTag={this.props.setTag}/>
+        <RepoTags repo={this.state.repo} tag={this.props.tag} setTag={this.props.setTag}/>
       </div>
     );
   }
@@ -27,5 +27,6 @@ class Tags extends React.Component {
 export default Tags;
 
 Tags.propTypes = {
-  setTag: React.PropTypes.func.isRequired
+  setTag: React.PropTypes.func.isRequired,
+  tag: React.PropTypes.string
 }

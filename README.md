@@ -28,6 +28,9 @@ Available Environment Variables:
   * **REGISTRY_PASSWORD** - the password to use if the registry has basic auth enabled
   * **USERNAME** - setting this will activate BASIC AUTH and require this username
   * **PASSWORD** - optional password for BASIC AUTH (you must set the `USERNAME` for this to work)
+  * **REGISTRY_ALLOW_DELETE** - when set to true will expose the delete action on images (default: false)
+    * note: you must enable delete actions on your registry.
+    * note: some caching schemes may also cause deletes to occur but not be apparent in the UI right away
 
 ```
 docker run -d \
@@ -38,6 +41,7 @@ docker run -d \
   -e REGISTRY_SSL_VERIFY=false \
   -e USERNAME=admin \
   -e PASSWORD=s3cr3t \
+  -e REGISTRY_ALLOW_DELETE=true \
   parabuzzle/craneoperator:latest
 ```
 

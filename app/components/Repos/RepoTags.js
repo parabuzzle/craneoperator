@@ -11,18 +11,35 @@ export default class RepoTags extends React.Component {
       tags: [],
       repo: undefined,
       tag: undefined,
-      loaded: true
+      loaded: true,
+      updating: false
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.updating === true){
+      this.updateList(this.state.repo)
     }
   }
 
   componentWillReceiveProps(nextProps) {
+    this.setState({
+      updating: true
+    })
+
+    if(nextProps.tag === undefined ){
+      this.setState({
+        tag: undefined,
+        loaded: false,
+      })
+    }
+
     if(nextProps.repo !== this.state.repo){
       this.setState({
         repo: nextProps.repo,
         loaded: false,
         tag: undefined
       })
-      this.updateList(nextProps.repo)
     }
   }
 
@@ -31,7 +48,8 @@ export default class RepoTags extends React.Component {
       .then(function(data){
         this.setState({
           tags: data,
-          loaded: true
+          loaded: true,
+          updating: false
         })
       }.bind(this));
   }
@@ -77,5 +95,6 @@ export default class RepoTags extends React.Component {
 }
 
 RepoTags.propTypes = {
-  setTag: React.PropTypes.func.isRequired
+  setTag: React.PropTypes.func.isRequired,
+  tag: React.PropTypes.string
 }
