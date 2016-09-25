@@ -78,7 +78,7 @@ class CraneOp < Sinatra::Base
   def sort_versions(ary)
     valid_version_numbers = ary.select { |i| i if i.match(/(0-9|\.|\-)/)}
     non_valid_version_numbers = ary - valid_version_numbers
-    (valid_version_numbers.sort_by {|v| Gem::Version.new( v ) } + non_valid_version_numbers)
+    (valid_version_numbers.sort_by {|v| Gem::Version.new( v.gsub(/[a-z|A-Z]/, '') ) } + non_valid_version_numbers)
   end
 
   def registry_url
