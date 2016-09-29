@@ -2,7 +2,7 @@
 #
 # https://docs.docker.com/reference/builder/
 
-FROM niche/ruby-base:0.1
+FROM ruby:2.3.1
 MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 
 # Add env variables
@@ -13,18 +13,15 @@ ENV REGISTRY_PROTO=https
 ENV REGISTRY_SSL_VERIFY=true
 ENV REGISTRY_ALLOW_DELETE=false
 
-# switch to tmp for handling the bundle
-WORKDIR /tmp
-
-# Apply Current Gemfile on top of that
-ADD Gemfile* /tmp/
-RUN bundle install
-
 # switch to the application directory for exec commands
 WORKDIR $APP_HOME
 
 # Add the app
 ADD . $APP_HOME
+
+RUN gem update bundler
+
+RUN bundle install
 
 # Run the app
 CMD bundle exec foreman start

@@ -24,6 +24,7 @@ task :tag do
   sh "docker tag -f parabuzzle/craneoperator:latest parabuzzle/docker-registry-ui:#{next_version}"
 end
 
+desc "Push to Dockerhub"
 task :push => :tag do
   sh "docker push parabuzzle/craneoperator:#{next_version}"
   sh "docker push parabuzzle/craneoperator:latest"
@@ -31,6 +32,7 @@ task :push => :tag do
   sh "docker push parabuzzle/docker-registry-ui:latest"
 end
 
+desc "Build Container"
 task :build do
   sh "npm install"
   sh "npm install webpack"
