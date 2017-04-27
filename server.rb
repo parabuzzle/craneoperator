@@ -5,6 +5,7 @@ require 'erb'
 require 'time'
 require 'sinatra/base'
 require 'sinatra/cross_origin'
+require 'base64'
 
 class CraneOp < Sinatra::Base
   register Sinatra::CrossOrigin
@@ -65,6 +66,22 @@ class CraneOp < Sinatra::Base
     end
   end
 
+  def base64_docker_auth
+    Base64.encode64("#{registry_username}:#{registry_password}").chomp
+  end
+
+  def hdrs
+    h =  {}
+    if registry_username
+      h['Authorization'] = "Basic #{base64_docker_auth}"
+    end
+    return h
+  end
+
+  def append_header(h, addl_header)
+     h.merge addl_header
+  end
+
   ## Helpers ##
 
   def to_bool(str)
@@ -86,9 +103,6 @@ class CraneOp < Sinatra::Base
 
     url_parts << registry_proto
     url_parts << "://"
-    if registry_username
-      url_parts << "#{registry_username}:#{registry_password}@"
-    end
     url_parts << registry_host
     url_parts << ":"
     url_parts << registry_port
@@ -99,20 +113,20 @@ class CraneOp < Sinatra::Base
   ## Registry API Methods ##
 
   def containers
-    response = HTTParty.get( "#{registry_url}/v2/_catalog", verify: to_bool(registry_ssl_verify) )
+    response = HTTParty.get( "#{registry_url}/v2/_catalog", verify: to_bool(registry_ssl_verify), headers: hdrs )
     json = Oj.load response.body
     json['repositories']
   end
 
   def container_tags(repo)
-    response = HTTParty.get( "#{registry_url}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify) )
+    response = HTTParty.get( "#{registry_url}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify), headers: hdrs )
     json = Oj.load response.body
     tags = json['tags'] || []
     tags = sort_versions(tags).reverse
   end
 
   def container_info(repo, manifest)
-    response = HTTParty.get( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify) )
+    response = HTTParty.get( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify), headers: hdrs )
     json = Oj.load response.body
 
     # Add extra fields for easy display
@@ -125,19 +139,15 @@ class CraneOp < Sinatra::Base
   end
 
   def fetch_digest(repo, manifest)
-    headers = {
-      'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'
-    }
-    response = HTTParty.head( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", headers: headers, verify: to_bool(registry_ssl_verify) )
+    h = append_header(hdrs, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
+    response = HTTParty.head( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify), headers: h )
     return response.headers["docker-content-digest"]
   end
 
   def image_delete(repo, manifest)
-    headers = {
-      'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'
-    }
+    h = append_header(hdrs, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
     digest = fetch_digest(repo, manifest)
-    response = HTTParty.delete( "#{registry_url}/v2/#{repo}/manifests/#{digest}", headers: headers, verify: to_bool(registry_ssl_verify) )
+    response = HTTParty.delete( "#{registry_url}/v2/#{repo}/manifests/#{digest}", verify: to_bool(registry_ssl_verify), headers: h )
     return response
   end
 
