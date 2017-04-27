@@ -12,6 +12,7 @@ ENV REGISTRY_PORT=5000
 ENV REGISTRY_PROTO=https
 ENV REGISTRY_SSL_VERIFY=true
 ENV REGISTRY_ALLOW_DELETE=false
+ENV APP_HOME=/webapp
 
 # switch to the application directory for exec commands
 WORKDIR $APP_HOME
