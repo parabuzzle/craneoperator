@@ -12,7 +12,9 @@ ENV REGISTRY_PORT=5000
 ENV REGISTRY_PROTO=https
 ENV REGISTRY_SSL_VERIFY=true
 ENV REGISTRY_ALLOW_DELETE=false
+ENV APP_HOME=/usr/local/craneoperator
 
+RUN mkdir -p $APP_HOME
 # switch to the application directory for exec commands
 WORKDIR $APP_HOME
 
@@ -24,4 +26,4 @@ RUN gem update bundler
 RUN bundle install
 
 # Run the app
-CMD bundle exec foreman start
+CMD cd $APP_HOME && bundle exec foreman start
