@@ -14,6 +14,7 @@ ENV REGISTRY_SSL_VERIFY=true
 ENV REGISTRY_ALLOW_DELETE=false
 ENV APP_HOME=/webapp
 
+RUN mkdir -p $APP_HOME
 # switch to the application directory for exec commands
 WORKDIR $APP_HOME
 
@@ -25,4 +26,4 @@ RUN gem update bundler
 RUN bundle install
 
 # Run the app
-CMD bundle exec foreman start
+CMD cd $APP_HOME && bundle exec foreman start

@@ -19,9 +19,9 @@ def next_version
 end
 
 task :tag do
-  sh "docker tag -f parabuzzle/craneoperator:latest parabuzzle/craneoperator:#{next_version}"
-  sh "docker tag -f parabuzzle/craneoperator:latest parabuzzle/docker-registry-ui:latest"
-  sh "docker tag -f parabuzzle/craneoperator:latest parabuzzle/docker-registry-ui:#{next_version}"
+  sh "docker tag parabuzzle/craneoperator:latest parabuzzle/craneoperator:#{next_version}"
+  sh "docker tag parabuzzle/craneoperator:latest parabuzzle/docker-registry-ui:latest"
+  sh "docker tag parabuzzle/craneoperator:latest parabuzzle/docker-registry-ui:#{next_version}"
 end
 
 desc "Push to Dockerhub"
@@ -40,7 +40,7 @@ task :build do
   sh "docker build -t parabuzzle/craneoperator:latest ."
 end
 
-task :default => [:build, :push]
+task :default => [:build]
 
 
 private
