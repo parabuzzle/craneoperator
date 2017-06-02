@@ -26,4 +26,4 @@ RUN gem update bundler
 RUN bundle install
 
 # Run the app
-CMD cd $APP_HOME && bundle exec foreman start
+CMD bundle exec foreman start

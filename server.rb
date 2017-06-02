@@ -94,14 +94,14 @@ class CraneOp < Sinatra::Base
 
   def sort_versions(ary)
     valid_version_numbers = ary.select { |i| i if i.match(/^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alnum:]]+)?$/) }
-    non_valid_version_numbers = (ary - valid_version_numbers).sort
+    non_valid_version_numbers = ary - valid_version_numbers
     versions = valid_version_numbers.sort_by {|v| Gem::Version.new( v.gsub(/^[a-z|A-Z|.]*/, '') ) } + non_valid_version_numbers
     if versions.include?('latest')
       # Make sure 'latest' appears at the top of the list
       versions.delete('latest')
-      versions.unshift('latest')
+      versions.push('latest')
     end
-    versions.reverse
+    versions
   end
 
   def registry_url
