@@ -60,6 +60,17 @@ export default class RepoConfig extends React.Component {
             ))}
           </div>
         </div>
+        <hr/>
+        <div className="row">
+          <div className="col-md-3">
+            <b>Labels:</b>
+          </div>
+          <div className="col-md-9">
+            {this.props.config.Labels && Object.keys(this.props.config.Labels).map((label, index) => (
+                <div key={index}>{label} : {this.props.config.Labels[label]}</div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

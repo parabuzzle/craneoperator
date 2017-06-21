@@ -40,7 +40,7 @@ task :build do
   sh "docker build -t parabuzzle/craneoperator:latest ."
 end
 
-task :default => [:build, :push]
+task :default => [:build]
 
 
 private

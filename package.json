@@ -20,7 +20,9 @@
     "babel-loader": "^6.2.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
-    "webpack": "^1.13.0"
+    "webpack": "^1.13.0",
+    "prop-types": "^15.5.8",
+    "esprima-fb": "15001.1001.0-dev-harmony-fb"
   },
   "devDependencies": {
     "webpack-dev-server": "^1.14.1"
