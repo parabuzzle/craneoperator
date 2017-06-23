@@ -5,6 +5,11 @@
 FROM ruby:2.3.1
 MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 
+RUN apt-get update && \
+    apt-get install python-software-properties -y && \
+    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    apt-get install nodejs -y
+
 # Add env variables
 ENV PORT 80
 ENV REGISTRY_HOST localhost
@@ -20,6 +25,10 @@ WORKDIR $APP_HOME
 
 # Add the app
 ADD . $APP_HOME
+
+RUN gem install httparty memoist && \
+    npm install && \
+    node_modules/.bin/webpack
 
 RUN gem update bundler
 
