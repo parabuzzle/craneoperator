@@ -34,9 +34,6 @@ end
 
 desc "Build Container"
 task :build do
-  sh "npm install"
-  sh "npm install webpack"
-  sh "node_modules/webpack/bin/webpack.js"
   sh "docker build -t parabuzzle/craneoperator:latest ."
 end
 
