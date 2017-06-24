@@ -49,6 +49,12 @@ html, body{
 }
 
 
+/* Cut long strings */
+.list-group-item {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
 
 /* Remove focus outline on buttons */
 .list-group-item:focus {outline:none;}
