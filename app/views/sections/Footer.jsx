@@ -19,7 +19,3 @@ export default class Footer extends React.Component {
     );
   }
 }
-
-Footer.propTypes = {
-  registry: React.PropTypes.object.isRequired
-}

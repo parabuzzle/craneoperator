@@ -78,8 +78,6 @@ class RepoBrowser extends React.Component {
 
   render(){
   return(
-    <div className="main-container">
-      <Header />
       <div className="container">
         <div className="col-sm-3">
           <Repos repo={this.state.repo} setRepo={(name) => this.handleSetRepo(name)}/>
@@ -91,8 +89,6 @@ class RepoBrowser extends React.Component {
           <TagInfo tag={this.state.tag} repo={this.state.repo} handleTagDelete={(repo, tag) => this.handleTagDelete(repo, tag)} getinfo={this.state.getinfo} registry={this.state.registry}/>
         </div>
       </div>
-      <Footer registry={this.state.registry} />
-    </div>
   )};
 }
 
