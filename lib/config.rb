@@ -10,7 +10,9 @@ class Configuration
                 :delete_allowed,
                 :username,
                 :password,
-                :version
+                :version,
+                :debug,
+                :login_allowed
 
   def initialize
     @registry_username   = ENV['REGISTRY_USERNAME']
@@ -24,6 +26,8 @@ class Configuration
     @username            = ENV['USERNAME']
     @password            = ENV['PASSWORD']
     @version             = "2.2"
+    @debug               = to_bool(ENV['DEBUG'] || 'false')
+    @login_allowed       = to_bool(ENV['ALLOW_REGISTRY_LOGIN'] || 'false')
   end
 
   def to_bool(str)
@@ -32,6 +36,24 @@ class Configuration
 
   def registry_url
     "#{registry_protocol}://#{registry_host}:#{registry_port}"
+  end
+
+  def to_hash
+    {
+      :registry_password   => @registry_password,
+      :registry_username   => @registry_username,
+      :registry_host       => @registry_host,
+      :registry_port       => @registry_port,
+      :registry_protocol   => @registry_protocol,
+      :ssl_verify          => @ssl_verify,
+      :registry_public_url => @registry_public_url,
+      :delete_allowed      => @delete_allowed,
+      :username            => @username,
+      :password            => @password,
+      :version             => @password,
+      :debug               => @debug,
+      :login_allowed       => @login_allowed
+    }
   end
 
 end

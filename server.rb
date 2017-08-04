@@ -47,7 +47,9 @@ class CraneOp < Sinatra::Base
     if filter
       return json['repositories'].select{ |i| i.match(/#{filter}.*/)}
     end
-    json['repositories']
+    repos = json['repositories']
+    repos = [] if repos.nil?
+    return repos
   end
 
   def container_tags(repo, filter=nil)
@@ -102,9 +104,16 @@ class CraneOp < Sinatra::Base
   post '/api/login' do
     content_type :json
     params = Oj.load(request.body.read)
-    session[:username] = params['username']
-    session[:password] = params['password']
-    {status: "success"}.to_json
+    session.delete(:username)
+    session.delete(:password)
+    username = params['username']
+    password = params['password']
+    if check_login(conf, session, username, password)
+      session[:username] = username
+      session[:password] = password
+      return {status: "success"}.to_json
+    end
+    halt 401, {error: "credentials are wrong"}.to_json
   end
 
   get '/logout' do
@@ -136,6 +145,7 @@ class CraneOp < Sinatra::Base
       protocol: conf.registry_protocol,
       ssl_verify: conf.ssl_verify,
       delete_allowed: conf.delete_allowed,
+      login_allowed: conf.login_allowed,
     }
     if session[:username]
       info[:username] = session[:username]
@@ -172,6 +182,31 @@ class CraneOp < Sinatra::Base
   not_found do
     status 404
     File.read(File.join('public', '404.html'))
+  end
+
+  # Debug endpoints
+  if Configuration.new.debug
+    get '/api/session' do
+      session.to_hash.to_json
+    end
+
+    get '/api/config' do
+      conf.to_hash.to_json
+    end
+
+    get '/api/login' do
+      content_type :json
+      session.delete(:username)
+      session.delete(:password)
+      username = params['username']
+      password = params['password']
+      if check_login(conf, session, username, password)
+        session[:username] = username
+        session[:password] = password
+        return {status: "success"}.to_json
+      end
+      halt 401, {error: "credentials are wrong"}.to_json
+    end
   end
 
 end

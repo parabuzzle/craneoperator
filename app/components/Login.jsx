@@ -13,7 +13,7 @@ export default class Login extends Component {
         )
     }
     return(
-        <NavItem eventKey={this.props.eventKey}>Login</NavItem>
+        <NavItem eventKey={this.props.eventKey} href="/login">Login</NavItem>
       )
   }
 

@@ -1,10 +1,11 @@
 import React from 'react';
-import axios from 'axios';
 import {
   BrowserRouter as Router,
   Route,
   Link
 } from 'react-router-dom'
+
+import RegistryInfo from '../api/RegistryInfo.jsx';
 import HomeView from './HomeView.jsx';
 import LoginView from './LoginView.jsx';
 import Header from './sections/Header.jsx';
@@ -14,24 +15,21 @@ export default class AppContainer extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      registry: {}
+      registry: {},
+      username: null
     }
   }
 
-  fetchRegistryInfo(){
-    return axios.get(`/api/registryinfo`)
+  componentDidMount() {
+    RegistryInfo()
       .then(function (response) {
+        const username = response.data.username
         this.setState({
-          registry: response.data
+          registry: response.data,
+          username: username
         })
       }.bind(this))
-      .catch(function (response) {
-        console.log('ERROR IN AXIOS! ' + response);
-      });
-  };
-
-  componentDidMount() {
-    this.fetchRegistryInfo()
+      .catch(function(response){})
   }
 
   render() {

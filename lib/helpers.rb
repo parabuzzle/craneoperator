@@ -24,12 +24,13 @@ module Helpers
     File.read(File.join('public', "#{view.to_s}.html"))
   end
 
-  def generateHeaders(config, session, headers={})
-    username = session[:username] || config.registry_username
-    password = session[:password] || config.registry_password
+  def generateHeaders(config, session, headers={}, login={})
+    username = login[:username] || session[:username] || config.registry_username
+    password = login[:password] || session[:password] || config.registry_password
     if username
       headers['Authorization'] = "Basic #{base64_docker_auth(username, password)}"
     end
+    return headers
   end
 
   def base64_docker_auth(username, password)
@@ -42,7 +43,14 @@ module Helpers
 
   def get(url, config, session, headers={})
     response = HTTParty.get( "#{config.registry_url}#{url}", verify: config.ssl_verify, headers: generateHeaders(config, session, headers) )
-    Oj.load response.body
+    json = Oj.load response.body
+    if json['errors']
+      puts "Error talking to the docker registry!"
+      json['errors'].each do |error|
+        puts "  -  " + error['code'] + ": " + error['message']
+      end
+    end
+    return json
   end
 
   def get_head(url, config, session, headers={})
@@ -51,5 +59,14 @@ module Helpers
 
   def send_delete(url, config, session, headers={})
     HTTParty.delete( "#{registry_url}#{url}", verify: config.ssl_verify, headers: generateHeaders(config, session, headers) )
+  end
+
+  def check_login(config, session, username=nil, password=nil, headers={})
+    if username.nil?
+      return false
+    end
+    login = {username: username, password: password}
+    response = HTTParty.get( "#{config.registry_url}/v2/_catalog", verify: config.ssl_verify, headers: generateHeaders(config, session, headers, login) )
+    return response.code != 401
   end
 end

@@ -11,6 +11,14 @@ export default class Header extends React.Component {
     return("Crane Operator")
   };
 
+  showLogin(){
+    if(this.props.registry.login_allowed){
+      return(
+            <Login registry={this.props.registry} eventKey={1}/>
+            )
+    }
+  }
+
 
 
   render(){
@@ -24,7 +32,7 @@ export default class Header extends React.Component {
               </Navbar.Brand>
           </Navbar.Header>
           <Nav pullRight>
-            <Login registry={this.props.registry} eventKey={1}/>
+            {this.showLogin()}
           </Nav>
         </Navbar>
       </div>
