@@ -41,8 +41,8 @@ module Helpers
      headers.merge addl_header
   end
 
-  def get(url, config, session, headers={})
-    response = HTTParty.get( "#{config.registry_url}#{url}", verify: config.ssl_verify, headers: generateHeaders(config, session, headers) )
+  def get(url, config, session, headers={}, query={})
+    response = HTTParty.get( "#{config.registry_url}#{url}", verify: config.ssl_verify, query: query, headers: generateHeaders(config, session, headers) )
     json = Oj.load response.body
     if json['errors']
       puts "Error talking to the docker registry!"

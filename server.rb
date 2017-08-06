@@ -42,13 +42,27 @@ class CraneOp < Sinatra::Base
 
   ## Registry API Methods ##
 
-  def containers(filter=nil)
-    json = get("/v2/_catalog", conf, session)
-    if filter
-      return json['repositories'].select{ |i| i.match(/#{filter}.*/)}
+  def fetch_catalog(next_string=nil)
+    query={n: 100, last: next_string}
+    json = get("/v2/_catalog", conf, session, {}, query)
+    if json['errors']
+      return json
     end
-    repos = json['repositories']
-    repos = [] if repos.nil?
+    return [] if json['repositories'].nil?
+    repos = []
+    repos += json['repositories']
+    unless json['repositories'].empty?
+      repos += fetch_catalog(repos.last)
+    end
+    return repos
+  end
+
+  def containers(filter=nil)
+    repos = fetch_catalog
+    return repos if repos.is_a?(Hash) && repos['errors']
+    if filter
+      return repos.select{ |i| i.match(/#{filter}.*/)}
+    end
     return repos
   end
 
@@ -66,11 +80,13 @@ class CraneOp < Sinatra::Base
     json = get("/v2/#{repo}/manifests/#{manifest}", conf, session)
 
     # Add extra fields for easy display
-    json['information'] = Oj.load(json['history'].first['v1Compatibility'])
+    if json['history']
+      json['information'] = Oj.load(json['history'].first['v1Compatibility'])
+      created_at = Time.parse(json['information']['created'])
+      json['information']['created_formatted'] = created_at.to_s
+      json['information']['created_millis']    = (created_at.to_f * 1000).to_i
+    end
 
-    created_at = Time.parse(json['information']['created'])
-    json['information']['created_formatted'] = created_at.to_s
-    json['information']['created_millis']    = (created_at.to_f * 1000).to_i
     return json
   end
 
@@ -92,7 +108,11 @@ class CraneOp < Sinatra::Base
 
   get '/api/containers' do
     content_type :json
-    containers(params[:filter]).to_json
+    repos = containers(params[:filter])
+    if !repos.is_a?(Array)
+      halt 401, {'content-type' => 'application/json'}, {'message' => "Registry requires authentication"}.to_json
+    end
+    repos.to_json
   end
 
   get '/api/tags/*' do |container|

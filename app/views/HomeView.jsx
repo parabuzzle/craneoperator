@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import ContainerListAPI from '../api/ContainerList.jsx';
 import TagsListAPI from '../api/TagsList.jsx';
+import ImageInfoAPI from '../api/ImageInfo.jsx';
 import { Button, FormGroup, FormControl, Col, Row, Panel} from 'react-bootstrap';
 import { debounce } from 'throttle-debounce';
 import queryString from 'query-string';
 import ContainerList from '../components/ContainerList.jsx';
 import TagList from '../components/TagList.jsx';
 import NotFound from '../components/NotFound.jsx'
+import ImageInfo from '../components/ImageInfo.jsx';
+import RegistryInfo from '../api/RegistryInfo.jsx';
 import Loader from 'react-loader';
 
 export default class HomeView extends Component {
@@ -19,7 +22,7 @@ export default class HomeView extends Component {
     const tag_filter = (parsedQuery.tag_filter) ? parsedQuery.tag_filter : undefined
     if(props.match.params.container_name){
       container = props.match.params.container_name.replace(/\/tag.*/, '')
-      const tagRE=props.match.params.container_name.match(/\/tag\/(.*)/)
+      const tagRE = props.match.params.container_name.match(/\/tag\/(.*)/)
       tag = tagRE ? tagRE[1] : undefined
     }
     this.state = {
@@ -31,21 +34,33 @@ export default class HomeView extends Component {
       tags_loaded: false,
       tag_filter: tag_filter,
       tag: tag,
+      main_error: undefined,
       error: undefined,
       tags_error: undefined,
       container_not_found: false,
       main_loaded: false,
-      active: false
+      active: false,
+      image_info_loaded: false,
+      image_info: undefined,
+      registry: {}
     }
     // Debounce api calls
-    this.updateList = debounce(250, this.updateList)
-    this.fetchTagsList = debounce(250, this.fetchTagsList)
+    this.fetchContainerList = debounce(350, this.fetchContainerList)
+    this.fetchTagsList = debounce(350, this.fetchTagsList)
   }
 
   // component callbacks
   componentWillMount() {
     this.fetchContainerList()
     this.fetchTagsList(this.state.container)
+    this.fetchImageInfo(this.state.container, this.state.tag)
+    RegistryInfo()
+      .then(function (response) {
+        this.setState({
+          registry: response.data,
+        })
+      }.bind(this))
+      .catch(function(response){})
   }
 
   componentWillReceiveProps(nextProps) {
@@ -70,13 +85,12 @@ export default class HomeView extends Component {
 
   // API calls
   fetchContainerList(){
-    const loaded = this.state.container && !this.state.active ? false : true
     ContainerListAPI(this.state.container_filter)
     .then(function(response){
       this.setState({
         containers: response.data,
         containers_loaded: true,
-        main_loaded: loaded,
+        main_loaded: true,
         active: true
       })
     }.bind(this))
@@ -85,6 +99,8 @@ export default class HomeView extends Component {
       console.log(response)
       this.setState({
         containers_loaded: true,
+        main_error: response.data.message,
+        main_loaded: true,
         error: <div><div>Error loading data from Registry</div><div>status code: {response.status}</div></div>
       })
     }.bind(this))
@@ -97,8 +113,7 @@ export default class HomeView extends Component {
     }
     TagsListAPI(container, f)
     .then(function(response){
-      const tag = (response.data.length === 1) ? response.data[0] : undefined
-      console.log(tag)
+      const tag = (response.data.length === 1) ? response.data[0] : this.state.tag
       this.setState({
         tags_list: response.data,
         tags_loaded: true,
@@ -106,7 +121,11 @@ export default class HomeView extends Component {
         tag: tag
       })
       if(tag){
-        this.props.history.push("/" + this.state.container + "/tag/" + tag)
+        this.fetchImageInfo(this.state.container, tag)
+        this.props.history.push({
+          pathname: ("/containers/" + this.state.container + "/tag/" + tag),
+          search: this.props.location.search
+        })
       }
     }.bind(this))
     .catch(function(response){
@@ -115,6 +134,29 @@ export default class HomeView extends Component {
         main_loaded: true,
         container_not_found: ((response.status === 404) ? true : false),
         tags_error: <div><div>Error loading data from Registry</div><div>status code: {response.status}</div></div>
+      })
+    }.bind(this))
+  }
+
+  fetchImageInfo(container=undefined, tag=undefined){
+    const c = container ? container : this.state.container
+    const t = tag ? tag : this.state.tag
+    if(!c){
+      return(null)
+    }
+    if(!t){
+      return(null)
+    }
+    ImageInfoAPI(c, t)
+    .then(function(response){
+      this.setState({
+        image_info: response.data,
+        image_info_loaded: true
+      })
+    }.bind(this)).catch(function(response){
+      this.setState({
+        image_info_loaded: true,
+        image_info_error: <div><div>Error loading data from Registry</div><div>status code: {response.status}</div></div>
       })
     }.bind(this))
   }
@@ -129,11 +171,12 @@ export default class HomeView extends Component {
         containers_loaded: false,
         containers: [],
         container_filter: event.target.value,
-        container: undefined
+        container: undefined,
+        image_info: undefined
       })
       this.updateList()
       this.props.history.push({
-        pathname: "/",
+        pathname: "/containers/",
         search: queryString.stringify(s)
       })
 
@@ -143,11 +186,12 @@ export default class HomeView extends Component {
         containers_loaded: false,
         containers: [],
         container_filter: event.target.value,
-        conatiner: undefined
+        conatiner: undefined,
+        image_info: undefined
       })
       this.updateList()
       this.props.history.push({
-        pathname: "/",
+        pathname: "/containers/",
         search: queryString.stringify(s)
       })
     }
@@ -161,11 +205,12 @@ export default class HomeView extends Component {
         tags_loaded: false,
         tags: [],
         tag: undefined,
-        tag_filter: event.target.value
+        tag_filter: event.target.value,
+        image_info: undefined
       })
       this.fetchTagsList(this.state.container, event.target.value)
       this.props.history.push({
-        pathname: "/" + this.state.container,
+        pathname: "/containers/" + this.state.container,
         search: queryString.stringify(s)
       })
 
@@ -175,11 +220,12 @@ export default class HomeView extends Component {
         tags_loaded: false,
         tags: [],
         tag: undefined,
-        tag_filter: event.target.value
+        tag_filter: event.target.value,
+        image_info: undefined
       })
       this.fetchTagsList(this.state.container, event.target.value)
       this.props.history.push({
-        pathname: "/" + this.state.container,
+        pathname: "/containers/" + this.state.container,
         search: queryString.stringify(s)
       })
     }
@@ -193,10 +239,12 @@ export default class HomeView extends Component {
     this.setState({
       container: container,
       tags_loaded: false,
-      tags_list: []
+      tags_list: [],
+      tag: undefined,
+      image_info: undefined
     })
     this.props.history.push({
-        pathname: "/" + container,
+        pathname: "/containers/" + container,
         search: this.props.location.search
       })
   }
@@ -206,19 +254,20 @@ export default class HomeView extends Component {
       tag: tag
     })
     this.props.history.push({
-        pathname: "/" + this.state.container + "/tag/" + tag,
+        pathname: "/containers/" + this.state.container + "/tag/" + tag,
         search: this.props.location.search
       })
+    this.fetchImageInfo(this.state.container, tag)
   }
   // end Click Handlers
 
 
   // Renderers
   displayErrors(){
-    if(this.state.error){
+    if(this.state.main_error){
       return(
           <Panel header="Error Loading Page" bsStyle="danger">
-            {this.state.error}
+            {this.state.main_error}
           </Panel>
         )
     }
@@ -246,25 +295,55 @@ export default class HomeView extends Component {
     }
     return(
       <div>
-        <ContainerList
-          filter={this.state.container_filter}
-          list={this.state.containers}
-          loaded={this.state.containers_loaded}
-          error={this.state.error}
-          container={this.state.container}
-          onClick={(container) => this.handleContainerClick(container)}
-          onFilterChange={(event) => this.handleContainerFilter(event)}
-        />
-        {this.renderTagsList()}
+        <Col md={3}>
+          <h2>Images</h2>
+          <ContainerList
+            filter={this.state.container_filter}
+            list={this.state.containers}
+            loaded={this.state.containers_loaded}
+            error={this.state.error}
+            container={this.state.container}
+            onClick={(container) => this.handleContainerClick(container)}
+            onFilterChange={(event) => this.handleContainerFilter(event)}
+          />
+        </Col>
+        <Col md={3}>
+          <h2>Tags</h2>
+          {this.renderTagsList()}
+        </Col>
       </div>
     )
+  }
+
+  renderImageInfo(){
+    if(!this.state.image_info){
+      return("")
+    }
+    if(this.state.main_loaded){
+      return(
+        <ImageInfo
+          should_render={!this.state.container_not_found}
+          loaded={this.state.image_info_loaded}
+          error={this.state.image_info_error}
+          container={this.state.container}
+          tag={this.state.tag}
+          info={this.state.image_info}
+          public_url={this.state.registry.public_url}
+        />
+        )
+    }
   }
   // end Renderers
 
   render() {
     return (
       <Loader loaded={this.state.main_loaded} color="red">
+        {this.displayErrors()}
         {this.renderPage()}
+        <Col md={6} className="col-left-border  ">
+        <h2>Information</h2>
+          {this.renderImageInfo()}
+        </Col>
       </Loader>
     );
   }

@@ -5,8 +5,7 @@ export default class ContainerList extends Component {
 
   render() {
     return (
-      <Col md={3}>
-        <h2>Images</h2>
+      <div>
         <FormGroup>
             <FormControl type="text" placeholder="Filter" onChange={(event) => this.props.onFilterChange(event)} value={this.props.filter ? this.props.filter : ""}/>
         </FormGroup>
@@ -24,7 +23,7 @@ export default class ContainerList extends Component {
             ))}
 
         </ul>
-      </Col>
+      </div>
     );
   }
 }
