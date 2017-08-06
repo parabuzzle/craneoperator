@@ -54,6 +54,7 @@ class CraneOp < Sinatra::Base
 
   def container_tags(repo, filter=nil)
     json = get("/v2/#{repo}/tags/list", conf, session)
+    return nil if json['tags'].nil?
     tags = json['tags'] || []
     if filter
       return sort_versions(tags.select{ |i| i.match(/#{filter}.*/)}).reverse

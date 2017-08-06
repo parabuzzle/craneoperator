@@ -6,16 +6,6 @@ html, body{
   padding-top: 100px;
 }
 
-.loader {
-  position: relative;
-  top: 30px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: white;
-  z-index: 9999;
-}
-
 .col-left-border {
   min-height: 400px;
   height:100%;

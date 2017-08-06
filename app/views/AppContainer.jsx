@@ -3,7 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
   Link,
-  Redirect
+  Switch
 } from 'react-router-dom'
 
 import RegistryInfo from '../api/RegistryInfo.jsx';
@@ -14,6 +14,7 @@ import LoginView from './LoginView.jsx';
 import Header from './sections/Header.jsx';
 import Footer from './sections/Footer.jsx';
 import ImageInfoView from './ImageInfoView.jsx';
+import NotFound from '../components/NotFound.jsx';
 
 export default class AppContainer extends React.Component {
   constructor(props){
@@ -43,10 +44,11 @@ export default class AppContainer extends React.Component {
           <Header registry={this.state.registry}/>
 
           <div className="container">
-            <Route exact path="/container" render={() => (<Redirect to="/"/>)} />
-            <Route path="/:container_name*/" component={HomeView}/>
-            <Route path="/:container_name*/tag/:tag_name" component={ImageInfoView}/>
-            <Route exact strict path="/login" component={LoginView}/>
+            <Switch>
+              <Route exact path="/:container_name*/" component={HomeView}/>
+              <Route exact strict path="/login" component={LoginView}/>
+              <Route component={NotFound}/>
+            </Switch>
           </div>
 
           <Footer registry={this.state.registry}/>

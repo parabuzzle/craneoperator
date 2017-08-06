@@ -6,6 +6,8 @@ import { debounce } from 'throttle-debounce';
 import queryString from 'query-string';
 import ContainerList from '../components/ContainerList.jsx';
 import TagList from '../components/TagList.jsx';
+import NotFound from '../components/NotFound.jsx'
+import Loader from 'react-loader';
 
 export default class HomeView extends Component {
   constructor(props){
@@ -31,6 +33,9 @@ export default class HomeView extends Component {
       tag: tag,
       error: undefined,
       tags_error: undefined,
+      container_not_found: false,
+      main_loaded: false,
+      active: false
     }
     // Debounce api calls
     this.updateList = debounce(250, this.updateList)
@@ -65,11 +70,14 @@ export default class HomeView extends Component {
 
   // API calls
   fetchContainerList(){
+    const loaded = this.state.container && !this.state.active ? false : true
     ContainerListAPI(this.state.container_filter)
     .then(function(response){
       this.setState({
         containers: response.data,
-        containers_loaded: true
+        containers_loaded: true,
+        main_loaded: loaded,
+        active: true
       })
     }.bind(this))
     .catch(function(response){
@@ -84,18 +92,28 @@ export default class HomeView extends Component {
 
   fetchTagsList(container=undefined, filter=undefined){
     const f = filter ? filter : this.state.tag_filter
+    if(!this.state.container){
+      return(null)
+    }
     TagsListAPI(container, f)
     .then(function(response){
+      const tag = (response.data.length === 1) ? response.data[0] : undefined
+      console.log(tag)
       this.setState({
         tags_list: response.data,
-        tags_loaded: true
+        tags_loaded: true,
+        main_loaded: true,
+        tag: tag
       })
+      if(tag){
+        this.props.history.push("/" + this.state.container + "/tag/" + tag)
+      }
     }.bind(this))
     .catch(function(response){
-      console.log("Error fetching tags list")
-      console.log(response)
       this.setState({
         tags_loaded: true,
+        main_loaded: true,
+        container_not_found: ((response.status === 404) ? true : false),
         tags_error: <div><div>Error loading data from Registry</div><div>status code: {response.status}</div></div>
       })
     }.bind(this))
@@ -221,10 +239,12 @@ export default class HomeView extends Component {
         )
     }
   }
-  // end Renderers
 
-  render() {
-    return (
+  renderPage(){
+    if(this.state.container_not_found){
+      return(<NotFound/>)
+    }
+    return(
       <div>
         <ContainerList
           filter={this.state.container_filter}
@@ -237,6 +257,15 @@ export default class HomeView extends Component {
         />
         {this.renderTagsList()}
       </div>
+    )
+  }
+  // end Renderers
+
+  render() {
+    return (
+      <Loader loaded={this.state.main_loaded} color="red">
+        {this.renderPage()}
+      </Loader>
     );
   }
 }
