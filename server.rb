@@ -162,18 +162,6 @@ class CraneOp < Sinatra::Base
     response.body
   end
 
-  # send endpoints that the react app handles
-    [
-      '/',
-      '/container',
-      '/container/*',
-      '/login',
-    ].each do |route|
-    get route do
-      html :index
-    end
-  end
-
   # Error Handlers
   error do
     File.read(File.join('public', '500.html'))
@@ -207,6 +195,11 @@ class CraneOp < Sinatra::Base
       end
       halt 401, {error: "credentials are wrong"}.to_json
     end
+
+  end
+
+  get '/*' do
+    html :index
   end
 
 end

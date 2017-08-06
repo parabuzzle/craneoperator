@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom'
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import Login from '../../components/Login.jsx';
 
@@ -26,9 +25,9 @@ export default class Header extends React.Component {
       <div>
         <Navbar staticTop={true}>
           <Navbar.Header>
-            <img className='navbar-brand' src="mini-logo.svg"/>
+            <img className='navbar-brand' src="/mini-logo.svg"/>
               <Navbar.Brand>
-                <Link to="/">{this.title()}</Link>
+                <a href="/">{this.title()}</a>
               </Navbar.Brand>
           </Navbar.Header>
           <Nav pullRight>

@@ -7,7 +7,7 @@ export default class Login extends Component {
   displayLogin(){
     if (this.props.registry.username){
       return(
-          <NavDropdown eventKey={this.props.eventKey} title={this.props.registry.username} id="login-dropdown">
+          <NavDropdown eventKey={this.props.eventKey} title={"Logged in as " + this.props.registry.username} id="login-dropdown">
             <MenuItem eventKey={this.props.eventKey + 0.1} href="/logout">Logout</MenuItem>
           </NavDropdown>
         )

@@ -1,13 +1,16 @@
 import axios from 'axios';
 
-const url = "/api/containers"
+const url = "/api/tags/"
 
-export default function ContainerListAPI(filter=null){
+export default function ContainerListAPI(container, filter=undefined){
   const params = {}
+
+  const tagUrl = url + container
+
   if(filter){
     params.filter = filter
   }
-  return axios.get(url, {params: params})
+  return axios.get(tagUrl, {params: params})
     .then(function (response) {
       return(response)
     })
