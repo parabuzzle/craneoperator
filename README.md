@@ -3,7 +3,7 @@ Just as crane operators can see where all the containers that are in the shipyar
 
 **VERSION 2.2 Includes a bunch of new requested features!**
 
-##What's new in Version 2.2?
+## What's new in Version 2.2?
 
    * Filtering of container list
    * Filtering of the tag list
