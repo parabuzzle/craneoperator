@@ -24,7 +24,7 @@ class CraneOp < Sinatra::Base
     set :max_age, "1728000"
     set :expose_headers, ['Content-Type']
     set :json_encoder, :to_json
-    set :session_secret, (ENV["SESSION_SECRET"] || "insecure-session-secret!")
+    set :session_secret, Configuration.new.session_secret
   end
 
   def conf

@@ -38,6 +38,8 @@ Available Environment Variables:
   * **SSL_VERIFY** - should the certificate be verified if using SSL (default: `true`)
   * **REGISTRY_PUBLIC_URL** - optional url to use for displaying in pull command and footer (default: `REGISTRY_HOST`:`REGISTRY_PORT`)
   * **ALLOW_REGISTRY_LOGIN** - Adds a login option to the UI for logging into the Registry for each user
+  * **SESSION_SECRET** - The session secret for storing the user credentials passed in via `ALLOW_REGISTRY_LOGIN`
+    * note: You should set this to a long random string if you are using `ALLOW_REGISTRY_LOGIN`
   * **REGISTRY_USERNAME** - the username to use if the registry has auth enabled (if `ALLOW_REGISTRY_LOGIN` enabled, this is overridden by the user's session)
   * **REGISTRY_PASSWORD** - the password to use if the registry has auth enabled (if `ALLOW_REGISTRY_LOGIN` enabled, this is overridden by the user's session)
   * **TITLE** - Changes the brand title (for those that like to change that sort of thing)

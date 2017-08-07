@@ -13,7 +13,8 @@ class Configuration
                 :version,
                 :debug,
                 :login_allowed,
-                :title
+                :title,
+                :session_secret
 
   def initialize
     @registry_username   = ENV['REGISTRY_USERNAME']
@@ -30,6 +31,7 @@ class Configuration
     @debug               = to_bool(ENV['DEBUG'] || 'false')
     @login_allowed       = to_bool(ENV['ALLOW_REGISTRY_LOGIN'] || 'false')
     @title               = ENV['TITLE'] || "Crane Operator"
+    @session_secret      = ENV['SESSION_SECRET'] || "insecure-session-secret!"
   end
 
   def to_bool(str)
@@ -56,6 +58,7 @@ class Configuration
       :debug               => @debug,
       :login_allowed       => @login_allowed,
       :title               => @title,
+      :session_secret      => @session_secret,
     }
   end
 

@@ -6,6 +6,7 @@ export default class LayerInfo extends Component {
   render() {
     return (
       <div>
+        <h3>Layer Info</h3>
         {this.props.info.map((i, index) => (
             <Layer key={index} info={i}/>
           ))}
