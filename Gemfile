@@ -17,7 +17,8 @@ gem 'rake'
 # Component requirements
 gem 'slim'
 
-gem 'sinatra'
+gem 'sinatra', '~> 1.4.5'
+gem 'rack-protection', '~> 1.5.3'
 
 gem 'rack', '~> 1.6.0'
 
@@ -28,3 +29,5 @@ gem 'pry'
 gem 'memoist'
 
 gem "sinatra-cross_origin", "~> 0.3.1"
+
+gem 'sinatra-session'

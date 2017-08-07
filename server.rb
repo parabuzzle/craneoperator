@@ -1,17 +1,19 @@
 require 'oj'
-require 'httparty'
 require 'pry'
 require 'erb'
 require 'time'
 require 'sinatra/base'
 require 'sinatra/cross_origin'
-require 'base64'
+require './lib/config.rb'
+require './lib/helpers.rb'
 
 class CraneOp < Sinatra::Base
   register Sinatra::CrossOrigin
+  include Helpers
 
   configure do
     enable :cross_origin
+    enable :sessions
     mime_type :javascript, 'application/javascript'
     mime_type :javascript, 'text/javascript'
     set :logging, true
@@ -22,166 +24,135 @@ class CraneOp < Sinatra::Base
     set :max_age, "1728000"
     set :expose_headers, ['Content-Type']
     set :json_encoder, :to_json
+    set :session_secret, (ENV["SESSION_SECRET"] || "insecure-session-secret!")
   end
 
-  ## Setup ##
-
-  def registry_host
-    ENV['REGISTRY_HOST'] || 'localhost'
+  def conf
+    return Configuration.new
   end
 
-  def registry_port
-    ENV['REGISTRY_PORT'] || '5000'
-  end
+  ## Basic Auth ##
 
-  def registry_proto
-    ENV['REGISTRY_PROTO'] || 'https'
-  end
-
-  def registry_ssl_verify
-    ENV['REGISTRY_SSL_VERIFY'] || 'true'
-  end
-
-  def registry_public_url
-    ENV['REGISTRY_PUBLIC_URL'] || "#{registry_host}:#{registry_port}"
-  end
-
-  def registry_username
-    ENV['REGISTRY_USERNAME']
-  end
-
-  def registry_password
-    ENV['REGISTRY_PASSWORD']
-  end
-
-  def delete_allowed
-    ENV['REGISTRY_ALLOW_DELETE'] || 'false'
-  end
-
-  ## Authentication ##
-
-  if ENV['USERNAME']
+  if Configuration.new.username
+    config = Configuration.new
     use Rack::Auth::Basic, "Please Authenticate to View" do |username, password|
-      username == ENV['USERNAME'] and password == ( ENV['PASSWORD'] || '' )
+      username == config.username and password == ( config.password || '' )
     end
-  end
-
-  def base64_docker_auth
-    Base64.encode64("#{registry_username}:#{registry_password}").chomp
-  end
-
-  def hdrs
-    h =  {}
-    if registry_username
-      h['Authorization'] = "Basic #{base64_docker_auth}"
-    end
-    return h
-  end
-
-  def append_header(h, addl_header)
-     h.merge addl_header
-  end
-
-  ## Helpers ##
-
-  def to_bool(str)
-    str.to_s.downcase == 'true'
-  end
-
-  def html(view)
-    File.read(File.join('public', "#{view.to_s}.html"))
-  end
-
-  def sort_versions(ary)
-    valid_version_numbers = ary.select { |i| i if i.match(/^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alnum:]]+)?$/) }
-    non_valid_version_numbers = ary - valid_version_numbers
-    versions = valid_version_numbers.sort_by {|v| Gem::Version.new( v.gsub(/^[a-z|A-Z|.]*/, '') ) } + non_valid_version_numbers.sort
-    if versions.include?('latest')
-      # Make sure 'latest' appears at the top of the list
-      versions.delete('latest')
-      versions.push('latest')
-    end
-    versions
-  end
-
-  def registry_url
-    url_parts = []
-
-    url_parts << registry_proto
-    url_parts << "://"
-    url_parts << registry_host
-    url_parts << ":"
-    url_parts << registry_port
-
-    url_parts.join
   end
 
   ## Registry API Methods ##
 
-  def containers
-    response = HTTParty.get( "#{registry_url}/v2/_catalog", verify: to_bool(registry_ssl_verify), headers: hdrs )
-    json = Oj.load response.body
-    json['repositories']
+  def fetch_catalog(next_string=nil)
+    query={n: 100, last: next_string}
+    json = get("/v2/_catalog", conf, session, {}, query)
+    if json['errors']
+      return json
+    end
+    return [] if json['repositories'].nil?
+    repos = []
+    repos += json['repositories']
+    unless json['repositories'].empty?
+      repos += fetch_catalog(repos.last)
+    end
+    return repos
   end
 
-  def container_tags(repo)
-    response = HTTParty.get( "#{registry_url}/v2/#{repo}/tags/list", verify: to_bool(registry_ssl_verify), headers: hdrs )
-    json = Oj.load response.body
+  def containers(filter=nil)
+    repos = fetch_catalog
+    return repos if repos.is_a?(Hash) && repos['errors']
+    if filter
+      return repos.select{ |i| i.match(/#{filter}.*/)}
+    end
+    return repos
+  end
+
+  def container_tags(repo, filter=nil)
+    json = get("/v2/#{repo}/tags/list", conf, session)
+    return nil if json['tags'].nil?
     tags = json['tags'] || []
-    tags = sort_versions(tags).reverse
+    if filter
+      return sort_versions(tags.select{ |i| i.match(/#{filter}.*/)}).reverse
+    end
+    sort_versions(tags).reverse
   end
 
   def container_info(repo, manifest)
-    response = HTTParty.get( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify), headers: hdrs )
-    json = Oj.load response.body
+    json = get("/v2/#{repo}/manifests/#{manifest}", conf, session)
 
     # Add extra fields for easy display
-    json['information'] = Oj.load(json['history'].first['v1Compatibility'])
+    if json['history']
+      history = json['history'].shift
+      json['information'] = Oj.load(history['v1Compatibility'])
 
-    created_at = Time.parse(json['information']['created'])
-    json['information']['created_formatted'] = created_at.to_s
-    json['information']['created_millis']    = (created_at.to_f * 1000).to_i
+      json['layer_info'] = []
+      json['history'].each do |i|
+        json['layer_info'] << Oj.load(i['v1Compatibility'])
+      end
+      json['layer_info'].reverse!
+      created_at = Time.parse(json['information']['created'])
+      json['information']['created_formatted'] = created_at.to_s
+      json['information']['created_millis']    = (created_at.to_f * 1000).to_i
+    end
+
     return json
   end
 
   def fetch_digest(repo, manifest)
-    h = append_header(hdrs, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
-    response = HTTParty.head( "#{registry_url}/v2/#{repo}/manifests/#{manifest}", verify: to_bool(registry_ssl_verify), headers: h )
+    response = get_head("/v2/#{repo}/manifests/#{manifest}", conf, session, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
     return response.headers["docker-content-digest"]
   end
 
   def image_delete(repo, manifest)
-    h = append_header(hdrs, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
     digest = fetch_digest(repo, manifest)
-    response = HTTParty.delete( "#{registry_url}/v2/#{repo}/manifests/#{digest}", verify: to_bool(registry_ssl_verify), headers: h )
-    return response
+    return send_delete("/v2/#{repo}/manifests/#{digest}", conf, session, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
   end
 
   ## Endpoints ##
 
-  get '/' do
-    html :index
+  get '/api' do
+    return "API Version #{conf.version}"
   end
 
-  get '/containers.json' do
+  get '/api/containers' do
     content_type :json
-
-    containers.to_json
+    repos = containers(params[:filter])
+    if !repos.is_a?(Array)
+      halt 401, {'content-type' => 'application/json'}, {'message' => "Registry requires authentication"}.to_json
+    end
+    repos.to_json
   end
 
-  get '/container/*/tags.json' do |container|
+  get '/api/tags/*' do |container|
     content_type :json
-
-    tags = container_tags(container)
+    tags = container_tags(container, params[:filter])
     halt 404 if tags.nil?
     tags.to_json
   end
 
-  get /container\/(.*\/)(.*.json)/ do |container, tag|
+  post '/api/login' do
+    content_type :json
+    params = Oj.load(request.body.read)
+    session.delete(:username)
+    session.delete(:password)
+    username = params['username']
+    password = params['password']
+    if check_login(conf, session, username, password)
+      session[:username] = username
+      session[:password] = password
+      return {status: "success"}.to_json
+    end
+    halt 401, {error: "credentials are wrong"}.to_json
+  end
+
+  get '/logout' do
+    session.destroy
+    redirect '/'
+  end
+
+  get /api\/containers\/(.*\/)(.*)/ do |container, tag|
 
     # This is here because we need to handle slashes in container names
     container.chop!
-    tag.gsub!('.json', '')
 
     content_type :json
 
@@ -193,26 +164,44 @@ class CraneOp < Sinatra::Base
     info.to_json
   end
 
-  get '/registryinfo' do
+  get '/api/registryinfo' do
     content_type :json
-    {
-      host: registry_host,
-      public_url: registry_public_url,
-      port: registry_port,
-      protocol: registry_proto,
-      ssl_verify: to_bool(registry_ssl_verify),
-      delete_allowed: to_bool(delete_allowed),
-    }.to_json
+    info = {
+      host: conf.registry_host,
+      public_url: conf.registry_public_url,
+      port: conf.registry_port,
+      protocol: conf.registry_protocol,
+      ssl_verify: conf.ssl_verify,
+      delete_allowed: conf.delete_allowed,
+      login_allowed: conf.login_allowed,
+      title: conf.title,
+    }
+    if session[:username]
+      info[:username] = session[:username]
+    end
+    info.to_json
   end
 
-  delete /container\/(.*\/)(.*.json)/ do |container, tag|
-    halt 404 unless to_bool(delete_allowed)
+  delete /api\/containers\/(.*\/)(.*)/ do |container, tag|
+    halt 404 unless to_bool(conf.delete_allowed)
 
     container.chop!
-    tag.gsub!('.json', '')
     response = image_delete( container, tag )
     headers = response.headers
     response.body
+  end
+
+  # React app endpoints
+  [
+    "/containers/*",
+    "/containers",
+    "/login",
+    "/login/",
+    "/",
+  ].each do |path|
+    get path do
+      erb :index, locals: { title: conf.title}
+    end
   end
 
   # Error Handlers
@@ -223,6 +212,32 @@ class CraneOp < Sinatra::Base
   not_found do
     status 404
     File.read(File.join('public', '404.html'))
+  end
+
+  # Debug endpoints
+  if Configuration.new.debug
+    get '/api/session' do
+      session.to_hash.to_json
+    end
+
+    get '/api/config' do
+      conf.to_hash.to_json
+    end
+
+    get '/api/login' do
+      content_type :json
+      session.delete(:username)
+      session.delete(:password)
+      username = params['username']
+      password = params['password']
+      if check_login(conf, session, username, password)
+        session[:username] = username
+        session[:password] = password
+        return {status: "success"}.to_json
+      end
+      halt 401, {error: "credentials are wrong"}.to_json
+    end
+
   end
 
 end

@@ -1,8 +1,8 @@
 import React       from 'react';
 import ReactDOM    from 'react-dom';
-import RepoBrowser from './components/RepoBrowser'
+import AppContainer from './views/AppContainer.jsx';
 
 ReactDOM.render(
-  <RepoBrowser />,
+  <AppContainer/>,
   document.getElementById('app')
 );

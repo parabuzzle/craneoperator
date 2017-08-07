@@ -29,6 +29,8 @@ GEM
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
     sinatra-cross_origin (0.3.2)
+    sinatra-session (1.0.0)
+      sinatra (>= 1.0)
     slim (3.0.6)
       temple (~> 0.7.3)
       tilt (>= 1.3.3, < 2.1)
@@ -55,9 +57,11 @@ DEPENDENCIES
   oj
   pry
   rack (~> 1.6.0)
+  rack-protection (~> 1.5.3)
   rake
-  sinatra
+  sinatra (~> 1.4.5)
   sinatra-cross_origin (~> 0.3.1)
+  sinatra-session
   slim
   thin
   unicorn
@@ -66,4 +70,4 @@ RUBY VERSION
    ruby 2.3.1p112
 
 BUNDLED WITH
-   1.13.7
+   1.14.6
