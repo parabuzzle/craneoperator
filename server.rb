@@ -174,6 +174,7 @@ class CraneOp < Sinatra::Base
       ssl_verify: conf.ssl_verify,
       delete_allowed: conf.delete_allowed,
       login_allowed: conf.login_allowed,
+      title: conf.title,
     }
     if session[:username]
       info[:username] = session[:username]
@@ -188,6 +189,19 @@ class CraneOp < Sinatra::Base
     response = image_delete( container, tag )
     headers = response.headers
     response.body
+  end
+
+  # React app endpoints
+  [
+    "/containers/*",
+    "/containers",
+    "/login",
+    "/login/",
+    "/",
+  ].each do |path|
+    get path do
+      erb :index, locals: { title: conf.title}
+    end
   end
 
   # Error Handlers
@@ -224,10 +238,6 @@ class CraneOp < Sinatra::Base
       halt 401, {error: "credentials are wrong"}.to_json
     end
 
-  end
-
-  get '/*' do
-    html :index
   end
 
 end
