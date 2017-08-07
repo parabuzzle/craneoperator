@@ -81,7 +81,14 @@ class CraneOp < Sinatra::Base
 
     # Add extra fields for easy display
     if json['history']
-      json['information'] = Oj.load(json['history'].first['v1Compatibility'])
+      history = json['history'].shift
+      json['information'] = Oj.load(history['v1Compatibility'])
+
+      json['layer_info'] = []
+      json['history'].each do |i|
+        json['layer_info'] << Oj.load(i['v1Compatibility'])
+      end
+      json['layer_info'].reverse!
       created_at = Time.parse(json['information']['created'])
       json['information']['created_formatted'] = created_at.to_s
       json['information']['created_millis']    = (created_at.to_f * 1000).to_i
@@ -175,7 +182,7 @@ class CraneOp < Sinatra::Base
   end
 
   delete /api\/containers\/(.*\/)(.*)/ do |container, tag|
-    halt 404 unless to_bool(delete_allowed)
+    halt 404 unless to_bool(conf.delete_allowed)
 
     container.chop!
     response = image_delete( container, tag )

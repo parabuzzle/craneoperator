@@ -15,7 +15,7 @@ export default function ContainerListAPI(container, filter=undefined){
       return(response)
     })
     .catch(function (response) {
-      console.log("Error calling api at: " + url + " (Code: " + response.status + ")");
+      console.log("Error calling api at: " + tagUrl + " (Code: " + response.status + ")");
       throw(response)
     });
 }

@@ -239,6 +239,7 @@ export default class HomeView extends Component {
     this.setState({
       container: container,
       tags_loaded: false,
+      tag_filter: undefined,
       tags_list: [],
       tag: undefined,
       image_info: undefined
@@ -296,7 +297,7 @@ export default class HomeView extends Component {
     return(
       <div>
         <Col md={3}>
-          <h2>Images</h2>
+          <h2>Containers</h2>
           <ContainerList
             filter={this.state.container_filter}
             list={this.state.containers}
@@ -329,8 +330,22 @@ export default class HomeView extends Component {
           tag={this.state.tag}
           info={this.state.image_info}
           public_url={this.state.registry.public_url}
+          delete_allowed={this.state.registry.delete_allowed}
+          history={this.props.history}
+          location={this.props.location}
         />
         )
+    }
+  }
+
+  renderImageContainer(){
+    if(!this.state.container_not_found){
+      return(
+        <Col md={6} className="col-left-border  ">
+        <h2>Information</h2>
+          {this.renderImageInfo()}
+        </Col>
+      )
     }
   }
   // end Renderers
@@ -340,10 +355,7 @@ export default class HomeView extends Component {
       <Loader loaded={this.state.main_loaded} color="red">
         {this.displayErrors()}
         {this.renderPage()}
-        <Col md={6} className="col-left-border  ">
-        <h2>Information</h2>
-          {this.renderImageInfo()}
-        </Col>
+        {this.renderImageContainer()}
       </Loader>
     );
   }

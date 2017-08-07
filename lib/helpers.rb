@@ -54,11 +54,11 @@ module Helpers
   end
 
   def get_head(url, config, session, headers={})
-    HTTParty.head( "#{registry_url}#{url}", verify: config.ssl_verify, headers: generateHeaders(config, session, headers) )
+    HTTParty.head( "#{config.registry_url}#{url}", verify: config.ssl_verify, headers: generateHeaders(config, session, headers) )
   end
 
   def send_delete(url, config, session, headers={})
-    HTTParty.delete( "#{registry_url}#{url}", verify: config.ssl_verify, headers: generateHeaders(config, session, headers) )
+    HTTParty.delete( "#{config.registry_url}#{url}", verify: config.ssl_verify, headers: generateHeaders(config, session, headers) )
   end
 
   def check_login(config, session, username=nil, password=nil, headers={})
