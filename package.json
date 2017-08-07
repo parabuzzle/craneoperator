@@ -13,6 +13,7 @@
     "history": "^1.13.1",
     "moment": "^2.18.1",
     "prop-types": "^15.5.8",
+    "query-string": "^5.0.0",
     "re-base": "^1.5.1",
     "react": "^15.6.1",
     "react-bootstrap": "^0.31.2",
