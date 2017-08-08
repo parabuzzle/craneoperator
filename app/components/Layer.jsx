@@ -12,6 +12,9 @@ export default class Layer extends Component {
   }
 
   formatCmd(cmd){
+    if(!cmd[0]){
+      return(cmd)
+    }
     let c = cmd[0].replace(/^\/bin\/sh -c /, "RUN ")
     let c1 = c.replace(/^RUN \#\(nop\)/, "")
     return(c1)

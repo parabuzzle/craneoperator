@@ -47,7 +47,7 @@ module Helpers
     if json['errors']
       puts "Error talking to the docker registry!"
       json['errors'].each do |error|
-        puts "  -  " + error['code'] + ": " + error['message']
+        puts "  -  " + error['code'].to_s + ": " + error['message']
       end
     end
     return json
