@@ -9,7 +9,7 @@ MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 ENV PORT=80 \
     REGISTRY_HOST=localhost \
     REGISTRY_PORT=5000 \
-    REGISTRY_PROTO=https \
+    REGISTRY_PROTOCOL=https \
     REGISTRY_SSL_VERIFY=true \
     REGISTRY_ALLOW_DELETE=false \
     APP_HOME=/webapp
