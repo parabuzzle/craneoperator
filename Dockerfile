@@ -2,7 +2,7 @@
 #
 # https://docs.docker.com/reference/builder/
 
-FROM ruby:2.3-alpine
+FROM ruby:2.3.6-alpine
 MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 
 # Add env variables
