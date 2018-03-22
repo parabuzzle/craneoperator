@@ -2,3 +2,4 @@
 node_modules
 bower
 public/bundle.js
+.idea
