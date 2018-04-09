@@ -297,7 +297,7 @@ export default class HomeView extends Component {
     return(
       <div>
         <Col md={3}>
-          <h2>Containers</h2>
+          <h2>Images</h2>
           <ContainerList
             filter={this.state.container_filter}
             list={this.state.containers}
