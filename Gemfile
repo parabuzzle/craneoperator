@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.3.6'
+ruby '2.4.4'
 
 # Server requirements
 gem 'thin' # or mongrel
