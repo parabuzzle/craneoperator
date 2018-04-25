@@ -44,7 +44,7 @@ class CraneOp < Sinatra::Base
 
   def fetch_catalog(next_string=nil)
     query={n: 100, last: next_string}
-    json = get("/v2/_catalog", conf, session, {}, query)
+    json = get("/v2/_catalog", conf, session, query: query)
     if json['errors']
       return json
     end
@@ -98,13 +98,13 @@ class CraneOp < Sinatra::Base
   end
 
   def fetch_digest(repo, manifest)
-    response = get_head("/v2/#{repo}/manifests/#{manifest}", conf, session, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
+    response = http_head("/v2/#{repo}/manifests/#{manifest}", conf, session, headers: { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
     return response.headers["docker-content-digest"]
   end
 
   def image_delete(repo, manifest)
     digest = fetch_digest(repo, manifest)
-    return send_delete("/v2/#{repo}/manifests/#{digest}", conf, session, { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
+    return http_delete("/v2/#{repo}/manifests/#{digest}", conf, session, headers: { 'Accept' => 'application/vnd.docker.distribution.manifest.v2+json'})
   end
 
   ## Endpoints ##
