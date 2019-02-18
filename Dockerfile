@@ -2,7 +2,7 @@
 #
 # https://docs.docker.com/reference/builder/
 
-FROM ruby:2.3.6-alpine
+FROM ruby:2.6.0-alpine
 MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 
 # Add env variables
@@ -21,11 +21,10 @@ WORKDIR $APP_HOME
 # Add the app
 COPY . $APP_HOME
 
-RUN apk add --update nodejs g++ musl-dev make linux-headers && \
-    npm install --no-optional && \
+RUN apk add --update nodejs g++ musl-dev make linux-headers yarn && \
+    yarn install && \
     node_modules/.bin/webpack && \
     rm -rf node_modules && \
-    gem update bundler && \
     bundle install --deployment && \
     apk del nodejs g++ musl-dev make linux-headers
 
