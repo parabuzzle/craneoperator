@@ -34,7 +34,7 @@ module Helpers
   end
 
   def base64_docker_auth(username, password)
-    Base64.encode64("#{username}:#{password}").chomp
+    Base64.strict_encode64("#{username}:#{password}")
   end
 
   def append_header(headers, addl_header)
