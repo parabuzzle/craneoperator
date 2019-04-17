@@ -31,3 +31,5 @@ gem 'memoist'
 gem "sinatra-cross_origin", "~> 0.3.1"
 
 gem 'sinatra-session'
+
+gem 'lru_redux'

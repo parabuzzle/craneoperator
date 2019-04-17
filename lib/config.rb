@@ -1,3 +1,5 @@
+require 'lru_redux'
+
 class Configuration
 
   attr_accessor :registry_password,
@@ -14,7 +16,8 @@ class Configuration
                 :debug,
                 :login_allowed,
                 :title,
-                :session_secret
+                :session_secret,
+                :auth_type
 
   def initialize
     @registry_username   = ENV['REGISTRY_USERNAME']
@@ -32,6 +35,7 @@ class Configuration
     @login_allowed       = to_bool(ENV['ALLOW_REGISTRY_LOGIN'] || 'false')
     @title               = ENV['TITLE'] || "Crane Operator"
     @session_secret      = ENV['SESSION_SECRET'] || "insecure-session-secret!"
+    @auth_type           = ENV['REGISTRY_AUTH_TYPE'] || "basic"
   end
 
   def to_bool(str)
@@ -59,6 +63,7 @@ class Configuration
       :login_allowed       => @login_allowed,
       :title               => @title,
       :session_secret      => @session_secret,
+      :auth_type           => @auth_type,
     }
   end
 
