@@ -296,7 +296,7 @@ export default class HomeView extends Component {
     }
     return(
       <div>
-        <Col md={3}>
+        <Col md={4}>
           <h2>Images</h2>
           <ContainerList
             filter={this.state.container_filter}
@@ -308,7 +308,7 @@ export default class HomeView extends Component {
             onFilterChange={(event) => this.handleContainerFilter(event)}
           />
         </Col>
-        <Col md={3}>
+        <Col md={2}>
           <h2>Tags</h2>
           {this.renderTagsList()}
         </Col>

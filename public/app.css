@@ -2,6 +2,10 @@ html, body{
   height:100%;
 }
 
+.container {
+  width: 80vw;
+}
+
 .footer-pad {
   padding-top: 100px;
 }
