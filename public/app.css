@@ -2,8 +2,9 @@ html, body{
   height:100%;
 }
 
-.container {
-  width: 80vw;
+.container-fluid {
+  min-width: 80vw;
+  max-width: 90vw;
 }
 
 .footer-pad {
