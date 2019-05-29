@@ -43,7 +43,7 @@ export default class AppContainer extends React.Component {
         <div>
           <Header registry={this.state.registry}/>
 
-          <div className="container">
+          <div className="container-fluid">
             <Switch>
               <Route exact path="/login" component={LoginView}/>
               <Route path="/containers/:container_name*/" component={HomeView} registry={this.state.registry}/>

@@ -2,6 +2,11 @@ html, body{
   height:100%;
 }
 
+.container-fluid {
+  min-width: 80vw;
+  max-width: 90vw;
+}
+
 .footer-pad {
   padding-top: 100px;
 }
