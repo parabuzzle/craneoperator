@@ -45,6 +45,7 @@ jobs:
     working_directory: ~/parabuzzle/craneoperator
     steps:
       - checkout
+      - run: gem install httparty
       - run:
           working_directory: ~/parabuzzle/craneoperator
           command: 'sudo docker info >/dev/null 2>&1 || sudo service docker start; '
