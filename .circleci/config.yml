@@ -46,8 +46,8 @@ jobs:
     steps:
       - checkout
       - run:
-        working_directory: ~/parabuzzle/craneoperator
-        command: 'sudo docker info >/dev/null 2>&1 || sudo service docker start; '
+          working_directory: ~/parabuzzle/craneoperator
+          command: 'sudo docker info >/dev/null 2>&1 || sudo service docker start; '
       - restore_cache:
         keys:
         - dep-cache-{{ .Branch }}-
