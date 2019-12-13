@@ -2,7 +2,7 @@ module.exports = {
   entry: "./app/App.js",
   output: {
     filename: "bundle.js",
-    path: __dirname + '/public',
+    path: __dirname + "/public/js",
     publicPath: "/"
   },
   devServer: {
@@ -14,11 +14,11 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
+        loader: "babel",
         query: {
-          presets: ['react', 'es2015']
+          presets: ["react", "es2015"]
         }
       }
     ]
   }
-}
+};
