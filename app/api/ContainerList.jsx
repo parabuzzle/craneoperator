@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = "/api/containers"
+const url = "./api/containers"
 
 export default function ContainerListAPI(filter=null){
   const params = {}

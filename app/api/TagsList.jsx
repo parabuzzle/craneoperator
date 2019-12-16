@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = "/api/tags/"
+const url = "./api/tags/"
 
 export default function ContainerListAPI(container, filter=undefined){
   const params = {}

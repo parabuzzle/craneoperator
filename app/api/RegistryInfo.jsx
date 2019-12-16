@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = "/api/registryinfo"
+const url = "./api/registryinfo"
 
 export default function RegistryInfo(){
   return axios.get(url)
