@@ -2,7 +2,7 @@
 #
 # https://docs.docker.com/reference/builder/
 
-FROM ruby:2.6.0-alpine
+FROM ruby:2.6.8-alpine
 MAINTAINER Mike Heijmans <parabuzzle@gmail.com>
 
 # Add env variables
@@ -20,6 +20,8 @@ WORKDIR $APP_HOME
 
 # Add the app
 COPY . $APP_HOME
+
+RUN apk upgrade --available && sync
 
 RUN apk add --update nodejs g++ musl-dev make linux-headers yarn && \
     yarn install && \
