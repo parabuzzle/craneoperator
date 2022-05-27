@@ -20,7 +20,7 @@ gem 'slim'
 gem 'sinatra', '~> 1.4.5'
 gem 'rack-protection', '~> 1.5.5'
 
-gem 'rack', '~> 1.6.0'
+gem 'rack', '~> 1.6.13'
 
 gem 'httparty'
 
