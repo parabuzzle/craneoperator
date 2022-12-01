@@ -17,10 +17,10 @@ gem 'rake'
 # Component requirements
 gem 'slim'
 
-gem 'sinatra', '~> 1.4.5'
-gem 'rack-protection', '~> 1.5.5'
+gem 'sinatra', '~> 3.0.4'
+gem 'rack-protection', '~> 3.0.4'
 
-gem 'rack', '~> 1.6.0'
+gem 'rack', '~> 2.2.4'
 
 gem 'httparty'
 
